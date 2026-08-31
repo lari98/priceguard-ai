@@ -1,0 +1,49 @@
+# ADR 0004: Pseudonymise, Don't Delete, Audit Log Entries on Account Erasure
+
+## Context
+GDPR Art. 17 (right to erasure) must be technically supportable for an `EndAccount` and
+its directly-linked data (devices, sessions, payment signals, risk events). But
+`AuditLogEntry` rows may reference that same account as part of a decision record that a
+tenant may need for its own compliance/accounting/dispute-defense purposes, and which
+`SECURITY.md`/`THREAT_MODEL.md` rely on being immutable and complete for accountability
+(Art. 5(2)) and non-repudiation.
+
+## Decision
+On an erasure request for an `EndAccount`:
+1. Directly-linked personal data (`Device`, `Session`, `PaymentSignal`, `RiskEvent`,
+   `RiskScore.evidence` referencing that account) is hard-deleted.
+2. `AuditLogEntry` rows referencing that account as subject are **retained but
+   pseudonymised**: the `actorId`/subject reference is replaced with a stable, non-reversible
+   pseudonym (`erased:<hash>`), and any personal data embedded in `beforeState`/`afterState`
+   JSON blobs is redacted to a `{ "redacted": true, "originalKeys": [...] }` marker, keeping
+   the fact and shape of the historical decision auditable without keeping the underlying
+   personal data.
+3. This behaviour is implemented in `apps/api/src/dsr/erasure.service.ts` and covered by an
+   automated test asserting both properties (data gone, audit shape preserved) hold.
+
+## Alternatives considered
+- **Hard-delete audit entries too.** Rejected: destroys the tenant's own accountability
+  record and this platform's ability to prove a past decision was made correctly, which
+  undermines the entire "explainable, auditable" positioning of the product.
+- **Never delete anything, only redact/flag.** Rejected: does not satisfy Art. 17 for the
+  directly-linked operational data, which has no comparable accountability justification
+  for retention past the tenant's configured window.
+
+## Advantages
+Satisfies erasure for genuinely personal operational data while preserving the audit
+trail's evidentiary value — directly supports the Art. 22 human-review/appeal story, since
+a past appeal's existence and outcome remain provable even after the underlying account
+data is erased.
+
+## Disadvantages
+Slightly more complex erasure logic than a blanket delete; requires careful, tested
+redaction logic to avoid either over-redacting (losing audit value) or under-redacting
+(leaking personal data through a JSON blob).
+
+## Security implications
+Pseudonym generation must not be reversible without the original ID (uses a keyed hash, not
+a reversible encoding) to avoid re-identification via the audit log itself.
+
+## Privacy implications
+This is itself a privacy-by-design decision: it resolves a genuine tension between Art. 17
+and Art. 5(2)/accountability rather than picking one and ignoring the other.

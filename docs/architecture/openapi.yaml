@@ -1,0 +1,194 @@
+openapi: 3.0.3
+info:
+  title: GeoGuard AI Core Risk API
+  version: 0.1.0-mvp
+  description: >
+    Draft contract for the Phase 2 MVP. This is hand-authored now to fix the contract
+    before implementation; `apps/api` also generates a live spec via @nestjs/swagger at
+    `/api/docs-json` which must be diffed against this file in CI once both exist
+    (tracked follow-up, not yet wired).
+servers:
+  - url: https://api.geoguard.example/v1
+    description: Placeholder — no production domain registered yet.
+security:
+  - ApiKeyAuth: []
+paths:
+  /risk/events:
+    post:
+      summary: Ingest a risk-relevant event and receive a risk decision
+      operationId: createRiskEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RiskEventInput'
+      responses:
+        '200':
+          description: Risk decision for this event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskDecision'
+        '400':
+          description: Validation error
+        '401':
+          description: Missing/invalid API key
+        '429':
+          description: Rate limit exceeded
+  /policies:
+    get:
+      summary: List policies for the authenticated tenant
+      operationId: listPolicies
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Policy'
+    post:
+      summary: Create a policy version
+      operationId: createPolicy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyInput'
+      responses:
+        '201':
+          description: Created
+  /appeals/{id}/decision:
+    post:
+      summary: Record a human decision on an appeal (uphold/overturn)
+      operationId: decideAppeal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [outcome]
+              properties:
+                outcome:
+                  type: string
+                  enum: [UPHELD, OVERTURNED]
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: OK
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-GeoGuard-Api-Key
+  schemas:
+    RiskEventInput:
+      type: object
+      required: [accountId, sessionId, ipAddress, deviceId, timestamp, pricingCountry, eventType]
+      properties:
+        accountId:
+          type: string
+          description: Tenant's own opaque identifier for the end account.
+        sessionId:
+          type: string
+        ipAddress:
+          type: string
+          format: ipv4
+        deviceId:
+          type: string
+          description: SDK-generated device identifier (not a hardware serial).
+        timestamp:
+          type: string
+          format: date-time
+        pricingCountry:
+          type: string
+          description: ISO 3166-1 alpha-2 country code of the billed/pricing region.
+        timezone:
+          type: string
+        locale:
+          type: string
+        paymentCountry:
+          type: string
+          description: Derived from a tokenized payment signal — never a raw card number.
+        eventType:
+          type: string
+          enum: [LOGIN, SESSION_START, PAYMENT, SUBSCRIPTION_REGION_CHANGE]
+    RiskDecision:
+      type: object
+      properties:
+        riskScore:
+          type: integer
+          minimum: 0
+          maximum: 100
+        confidence:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+        likelyPrimaryCountry:
+          type: object
+          additionalProperties:
+            type: number
+          description: Country code -> probability, sums to ~1.0. Kept separate from riskScore per Phase 0 design principle.
+        vpnProbability:
+          type: number
+        travelProbability:
+          type: number
+        policyAction:
+          type: string
+          enum: [NONE, MONITOR, WARN, REQUEST_VERIFICATION, RESTRICT, MANUAL_REVIEW]
+        requiresHumanReview:
+          type: boolean
+        reasonCodes:
+          type: array
+          items:
+            type: string
+          description: Customer-facing evidence summary — deliberately coarser than the internal analyst explanation (brief §18).
+        modelVersion:
+          type: string
+        policyVersion:
+          type: string
+    Policy:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        version:
+          type: integer
+        active:
+          type: boolean
+    PolicyInput:
+      type: object
+      required: [name, rules]
+      properties:
+        name:
+          type: string
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleInput'
+    RuleInput:
+      type: object
+      required: [condition, action, requiresHumanReview]
+      properties:
+        condition:
+          type: object
+          description: Nested AND/OR/NOT condition tree — see docs/architecture/RULE_ENGINE.md
+        action:
+          type: string
+          enum: [NONE, MONITOR, WARN, REQUEST_VERIFICATION, RESTRICT, MANUAL_REVIEW]
+        requiresHumanReview:
+          type: boolean
+          description: Server rejects false for any action other than NONE/MONITOR/WARN — see ADR on Article 22 safeguard.
