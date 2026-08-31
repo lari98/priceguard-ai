@@ -1,0 +1,36 @@
+{
+  "name": "@geoguard/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "GeoGuard AI admin dashboard (Next.js) — tenant admin console for risk events, accounts, policy rules, audit log and appeals.",
+  "engines": {
+    "node": "22.22.2"
+  },
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "16.3.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "@tanstack/react-query": "5.101.4",
+    "zod": "4.4.3",
+    "clsx": "2.1.1",
+    "recharts": "3.10.1"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "@types/node": "22.14.0",
+    "@types/react": "19.2.8",
+    "@types/react-dom": "19.2.4",
+    "eslint": "9.38.0",
+    "eslint-config-next": "16.3.1",
+    "tailwindcss": "4.3.3",
+    "@tailwindcss/postcss": "4.3.3",
+    "postcss": "8.5.26"
+  }
+}

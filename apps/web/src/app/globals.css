@@ -1,0 +1,32 @@
+@import 'tailwindcss';
+
+:root {
+  --gg-bg: #0b1020;
+  --gg-panel: #131a2e;
+  --gg-border: #232c48;
+  --gg-text: #e6e9f5;
+  --gg-muted: #93a0c2;
+  --gg-accent: #4f7cff;
+  --gg-danger: #ef5a5a;
+  --gg-warn: #e6a23c;
+  --gg-ok: #3fbf7f;
+}
+
+body {
+  background-color: var(--gg-bg);
+  color: var(--gg-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.gg-panel {
+  background-color: var(--gg-panel);
+  border: 1px solid var(--gg-border);
+  border-radius: 0.75rem;
+}
+
+.gg-badge-none { color: var(--gg-ok); }
+.gg-badge-request_verification { color: var(--gg-warn); }
+.gg-badge-restrict,
+.gg-badge-manual_review { color: var(--gg-warn); }
+.gg-badge-suspend,
+.gg-badge-terminate { color: var(--gg-danger); }
