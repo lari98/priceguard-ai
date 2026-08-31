@@ -73,8 +73,16 @@ container originally scoped — see ADR-0006 for the full reasoning and, importa
 is explicitly *not* real yet (the approved rollout does not gate live traffic; the trained
 model is illustrative-scale, not production-grade fraud ML).
 
-## Not yet in scope (Phase 5 containers, shown for roadmap context only)
+## Phase 5 addition: fraud graph on Postgres (not a dedicated graph DB)
 
-Event Stream (Kafka-compatible, still deferred per ADR-0002), Graph Database (fraud graph)
-are still deliberately **absent** from the container diagram above. They will be added to
-this document, not silently introduced into code, when their phase begins.
+`apps/api/src/fraud-graph/` implements real connected-components clustering directly over
+Postgres (`devices`/`device_account_links`/`payment_signals`) rather than the dedicated
+Graph Database container originally scoped — see ADR-0007 for the full reasoning, the real
+gap it found and fixed (`device_account_links`), and what's explicitly deferred (clusters
+don't yet feed policy decisions; no fuzzy/similarity matching; no dedicated graph engine).
+
+## Not yet in scope (roadmap context only)
+
+Event Stream (Kafka-compatible, still deferred per ADR-0002) is still deliberately
+**absent** from the container diagram above. It will be added to this document, not
+silently introduced into code, when its phase begins.

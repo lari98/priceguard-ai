@@ -15,10 +15,31 @@ v1.3.0  Additional SDK/integrations
 v2.0.0  Major architecture/API/model-generation change
 ```
 
-No version has shipped yet. This repository is pre-1.0.0, in active Phase 4 (ML)
-development, on top of the completed Phase 0–3 foundation below.
+No version has shipped yet. This repository is pre-1.0.0, in active Phase 5 (Fraud Graph)
+development, on top of the completed Phase 0–4 foundation below.
 
 ## [Unreleased]
+
+### Added (Phase 5 — Fraud graph, Scenario 8)
+- `apps/api/src/fraud-graph/`: real connected-components clustering (union-find,
+  unit-tested) over accounts sharing a device or payment method, running directly on
+  Postgres rather than a dedicated graph database (ADR-0007).
+- Real gap found and fixed while building this: `devices`' `(tenant_id, device_hash)`
+  uniqueness meant a device shared by a second account was invisible to any query — fixed
+  with a new `device_account_links` join table populated on every session, independent of
+  which account "owns" the canonical device row.
+- `fraud_clusters` table + `GET /fraud-graph/clusters` / `POST /fraud-graph/clusters/run`:
+  on-demand and persisted cluster detection, admin-triggered.
+- Fraud Graph dashboard page: cluster cards with a real (accurate, not decorative)
+  star-graph SVG visualization of each cluster's shared-signal structure.
+- **Scenario 8 is now a real, passing test** (`test/fraud-graph.e2e-spec.ts`) instead of the
+  Phase 2 MVP's honest `it.todo` — real HTTP ingestion for multiple accounts sharing a
+  device, real cluster detection, real assertion that an unrelated account is excluded.
+- `docs/adr/0007-fraud-graph-on-postgres.md`: what's real vs. explicitly deferred (clusters
+  don't yet feed policy decisions; no fuzzy/similarity matching; no dedicated graph engine).
+- 2 new unit tests (union-find), 3 new e2e tests. Full suite after this phase: API
+  lint/typecheck/28 unit/23 e2e all green (no `it.todo` remaining); web
+  lint/typecheck/build all green.
 
 ### Added (Phase 4 — ML shadow-model pipeline)
 - `apps/api/src/ml/`: real logistic-regression training (`training/logistic-regression.ts`,

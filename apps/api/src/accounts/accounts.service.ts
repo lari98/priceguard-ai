@@ -56,13 +56,25 @@ export class AccountsService {
       .from(schema.devices)
       .where(and(eq(schema.devices.tenantId, tenantId), eq(schema.devices.deviceHash, deviceHash)))
       .limit(1);
-    if (existing) return existing;
 
-    const [created] = await this.db
-      .insert(schema.devices)
-      .values({ tenantId, endAccountId, deviceHash, ...attrs })
-      .returning();
-    return created;
+    const device =
+      existing ??
+      (
+        await this.db
+          .insert(schema.devices)
+          .values({ tenantId, endAccountId, deviceHash, ...attrs })
+          .returning()
+      )[0];
+
+    // Record this (device, account) pairing even when the device row already existed for
+    // a *different* account — see deviceAccountLinks's schema comment. onConflictDoNothing
+    // keeps repeat sessions from the same account on the same device idempotent.
+    await this.db
+      .insert(schema.deviceAccountLinks)
+      .values({ tenantId, deviceId: device.id, endAccountId })
+      .onConflictDoNothing();
+
+    return device;
   }
 
   async createSession(

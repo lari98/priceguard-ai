@@ -1,0 +1,65 @@
+# ADR-0007: Phase 5 Fraud Graph — connected components on Postgres, not a dedicated graph DB
+
+## Status
+Accepted (Phase 5).
+
+## Context
+The master brief and Phase 0 §O scope a "fraud graph" capability: detecting clusters of
+accounts that share devices or payment methods (Scenario 8,
+`docs/PHASE_0_DISCOVERY.md` §E). ADR-0002 deferred a dedicated graph database (Neo4j or
+similar) until real scale justifies the operational cost, consistent with ADR-0003's
+modular-monolith stance.
+
+## Decision
+Phase 5 implements the actual graph algorithm — connected-components clustering via
+union-find (`apps/api/src/fraud-graph/union-find.ts`) — running directly against Postgres,
+over edges derived from real `devices`/`device_account_links`/`payment_signals` rows. This
+is a real, tested graph algorithm; it is not backed by a specialised graph engine.
+
+A real gap was found and fixed while building this: `devices` table's
+`(tenant_id, device_hash)` uniqueness meant `findOrCreateDevice` silently returned the
+existing device row — pinned to whichever account first used that device hash — for every
+subsequent account that used the same device, making a shared device *invisible* to any
+future query. This is exactly the account-farm signal Scenario 8 needs. Fixed by adding
+`device_account_links` (many-to-many device↔account pairing), populated on every session,
+independent of which account "owns" the canonical device row.
+
+## What is real here
+- A genuine graph algorithm (union-find with path compression + union by rank), unit-tested
+  on its own merits (`union-find.spec.ts`), not just exercised incidentally through the DB.
+- Real edges from real ingested data — the Scenario 8 e2e test
+  (`test/fraud-graph.e2e-spec.ts`) ingests risk events over HTTP for multiple accounts
+  sharing one device and asserts the cluster is found, and that an unrelated account is
+  correctly excluded.
+- Persisted results (`fraud_clusters` table) for audit/investigation follow-up, via an
+  explicit admin-triggered run endpoint — not a hidden background job silently affecting
+  policy decisions.
+- A real (if simple) network visualization in the dashboard — an accurate star-graph
+  rendering of "these accounts share this signal", not a decorative mockup.
+
+## What is explicitly NOT done, and why
+1. **Detected clusters do not automatically feed into policy decisions or risk scores.**
+   `risk.service.ts`'s ingestion path is unchanged — a detected cluster is visible to an
+   analyst via the API/dashboard, but does not itself trigger `MANUAL_REVIEW`/`SUSPEND`.
+   Wiring that in without human review would risk cascading false positives across an
+   entire cluster from one false-positive edge (e.g. a shared household device
+   legitimately used by unrelated family members) — a real product/policy decision, not
+   an engineering afterthought, and is left to a future phase with explicit tenant opt-in.
+2. **Payment-token sharing can't yet be exercised via the real ingestion API.** The
+   `RiskEventInputDto` doesn't accept a raw payment token (ADR-0002 already flagged real
+   PSP-token ingestion as a documented follow-up) — the e2e test seeds `payment_signals`
+   directly, the same pattern other e2e specs use for fixtures the API doesn't yet expose.
+3. **No fuzzy/approximate matching.** Real fraud rings often use *slightly* different
+   device fingerprints or payment details per account specifically to evade exact-match
+   clustering — a production fraud-graph system needs similarity-based edges (e.g. device
+   fingerprint distance, BIN/last-4 matching), which is a real ML/data-science undertaking
+   beyond this ADR's scope.
+4. **No dedicated graph database.** At real scale, connected-components over millions of
+   accounts via repeated Postgres queries would need to move to a real graph engine
+   (Neo4j, or a graph-native extension) — the algorithm itself would transfer directly,
+   only the storage/query layer would change.
+
+## Consequences
+Scenario 8 is now a real, passing, executable test instead of an honest `it.todo` — the
+detection capability genuinely exists and works against real data, with its real
+limitations documented here rather than glossed over.

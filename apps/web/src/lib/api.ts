@@ -219,6 +219,13 @@ export interface RolloutConfig {
   approvedAt: string | null;
 }
 
+export interface FraudCluster {
+  endAccountIds: string[];
+  clusterSize: number;
+  sharedDeviceHashes: string[];
+  sharedPaymentTokens: string[];
+}
+
 export const api = {
   login: (email: string, password: string) =>
     request<LoginResponse>('/auth/login', null, { method: 'POST', body: JSON.stringify({ email, password }) }),
@@ -266,4 +273,10 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ modelVersion, rolloutPercentage }),
     }),
+
+  listFraudClusters: (token: string, minClusterSize = 3) =>
+    request<FraudCluster[]>(`/fraud-graph/clusters?minClusterSize=${minClusterSize}`, token),
+
+  runFraudClusterDetection: (token: string, minClusterSize = 3) =>
+    request<FraudCluster[]>(`/fraud-graph/clusters/run?minClusterSize=${minClusterSize}`, token, { method: 'POST' }),
 };

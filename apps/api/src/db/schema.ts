@@ -123,6 +123,31 @@ export const devices = pgTable(
   ],
 );
 
+// Added in Phase 5 (Fraud Graph): `devices.end_account_id` only records the *first*
+// account a device hash was ever seen for (findOrCreateDevice returns the existing device
+// row unchanged on a repeat hash) — a second account genuinely using the same device would
+// otherwise be invisible, which is exactly the account-farm signal Scenario 8 needs to
+// detect. This join table records every (device, account) pairing that ever occurred,
+// independent of which account "owns" the canonical device row.
+export const deviceAccountLinks = pgTable(
+  'device_account_links',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    tenantId: uuid('tenant_id').notNull(),
+    deviceId: uuid('device_id')
+      .notNull()
+      .references(() => devices.id, { onDelete: 'cascade' }),
+    endAccountId: uuid('end_account_id')
+      .notNull()
+      .references(() => endAccounts.id, { onDelete: 'cascade' }),
+    firstSeenAt: timestamp('first_seen_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    unique('device_account_links_device_account_unique').on(t.deviceId, t.endAccountId),
+    index('device_account_links_tenant_idx').on(t.tenantId),
+  ],
+);
+
 export const sessions = pgTable(
   'sessions',
   {
@@ -405,6 +430,29 @@ export const mlShadowEvaluations = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index('ml_shadow_evaluations_tenant_model_idx').on(t.tenantId, t.modelVersion)],
+);
+
+// --- Phase 5: Fraud graph ---
+//
+// Implements Scenario 8 ("large group of accounts share devices and payment methods;
+// graph engine detects suspicious cluster") from docs/PHASE_0_DISCOVERY.md §E, deferred
+// from the Phase 2 MVP (see the comment removed from scoring.service.spec.ts). A dedicated
+// graph database (Neo4j or similar) remains deferred per ADR-0002 until real scale
+// justifies it — `fraud-graph.service.ts` implements the same connected-components
+// clustering algorithm directly over Postgres (shared `devices.device_hash` and
+// `payment_signals.provider_token` edges), which is a real, working graph algorithm, just
+// not backed by a specialised graph engine. See docs/adr/0007-fraud-graph-on-postgres.md.
+export const fraudClusters = pgTable(
+  'fraud_clusters',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    tenantId: uuid('tenant_id').notNull(),
+    endAccountIds: jsonb('end_account_ids').notNull(), // string[]
+    sharedSignals: jsonb('shared_signals').notNull(), // { deviceHashes: string[], paymentTokens: string[] }
+    clusterSize: integer('cluster_size').notNull(),
+    detectedAt: timestamp('detected_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('fraud_clusters_tenant_idx').on(t.tenantId)],
 );
 
 // --- Relations (used by Drizzle's relational query API in read-heavy services) ---

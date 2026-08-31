@@ -181,11 +181,9 @@ describe('ScoringService — Phase 0 §34 required scenarios', () => {
   });
 
   // Scenario 8 — "large group of accounts share devices and payment methods; graph engine
-  // detects suspicious cluster" — deliberately NOT implemented here. Per
-  // docs/PHASE_0_DISCOVERY.md §O and ADR-0002/0003, the account-relationship fraud graph
-  // is a Phase 5 deliverable. Faking a graph-cluster detection result in the MVP's
-  // per-account scoring service would violate the master brief's explicit rule against
-  // pretending unimplemented functionality exists (brief §50). This test is intentionally
-  // left as a todo, pointing at the phase that must implement it.
-  it.todo('Scenario 8 — shared-device/payment account-farm cluster detection requires the Phase 5 Fraud Graph (not implemented in this MVP)');
+  // detects suspicious cluster" — this is a *cross-account* graph signal, not something a
+  // per-account scoring call (this service) can ever answer, so it was never going to move
+  // here. It's now implemented for real in the Phase 5 Fraud Graph module — see
+  // test/fraud-graph.e2e-spec.ts ("Scenario 8") for the executable version, and
+  // src/fraud-graph/union-find.spec.ts for the underlying clustering algorithm's unit tests.
 });

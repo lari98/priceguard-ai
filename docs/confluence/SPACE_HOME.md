@@ -20,6 +20,7 @@ Self-generated Confluence-space export — see `docs/confluence/README.md` for w
     - [ADR-0004: Audit Log Pseudonymisation on Erasure](pages/adr-0004.md)
     - [ADR-0005: Drizzle, Not Prisma](pages/adr-0005.md)
     - [ADR-0006: ML Shadow Rollout Scope](pages/adr-0006.md)
+    - [ADR-0007: Fraud Graph on Postgres](pages/adr-0007.md)
   - [Machine Learning](pages/ml.md)
     - [Abuse Scenario Catalogue](pages/abuse-scenario-catalogue.md)
   - [Governance & Process](pages/governance.md)
