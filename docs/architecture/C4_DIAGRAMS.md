@@ -65,9 +65,16 @@ columnar analytics store such as ClickHouse) remains deferred until real ingesti
 justifies the operational cost (ADR-0002, Phase 0 §M/N); this batch implementation is what
 Phase 4's model training reads from in the meantime.
 
-## Not yet in scope (Phase 4–5 containers, shown for roadmap context only)
+## Phase 4 addition: in-process ML module (not a separate service)
 
-Event Stream (Kafka-compatible), ML Scoring Service (Python/FastAPI), Model Registry, Graph
-Database (fraud graph) are still deliberately **absent** from the MVP container diagram
-above. They will be added to this document, not silently introduced into code, when their
-phase begins.
+`apps/api/src/ml/` implements the shadow-model training/registry/evaluation/drift/rollout-
+approval pipeline **in-process**, not as the separate ML Scoring Service (Python/FastAPI)
+container originally scoped — see ADR-0006 for the full reasoning and, importantly, what
+is explicitly *not* real yet (the approved rollout does not gate live traffic; the trained
+model is illustrative-scale, not production-grade fraud ML).
+
+## Not yet in scope (Phase 5 containers, shown for roadmap context only)
+
+Event Stream (Kafka-compatible, still deferred per ADR-0002), Graph Database (fraud graph)
+are still deliberately **absent** from the container diagram above. They will be added to
+this document, not silently introduced into code, when their phase begins.

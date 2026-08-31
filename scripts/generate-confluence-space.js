@@ -49,6 +49,10 @@ const PAGE_TREE = [
   { slug: 'adr-0003', title: 'ADR-0003: Modular Monolith Structure', parent: 'adrs', source: 'docs/adr/0003-modular-monolith-structure.md', labels: ['adr'] },
   { slug: 'adr-0004', title: 'ADR-0004: Audit Log Pseudonymisation on Erasure', parent: 'adrs', source: 'docs/adr/0004-audit-log-pseudonymisation-on-erasure.md', labels: ['adr', 'privacy'] },
   { slug: 'adr-0005', title: 'ADR-0005: Drizzle, Not Prisma', parent: 'adrs', source: 'docs/adr/0005-drizzle-not-prisma.md', labels: ['adr'] },
+  { slug: 'adr-0006', title: 'ADR-0006: ML Shadow Rollout Scope', parent: 'adrs', source: 'docs/adr/0006-ml-shadow-rollout.md', labels: ['adr', 'ml'] },
+
+  { slug: 'ml', title: 'Machine Learning', parent: 'space-home', labels: ['ml'], section: true },
+  { slug: 'abuse-scenario-catalogue', title: 'Abuse Scenario Catalogue', parent: 'ml', source: 'docs/ml/ABUSE_SCENARIO_CATALOGUE.md', labels: ['ml', 'phase-3', 'phase-4'] },
 
   { slug: 'governance', title: 'Governance & Process', parent: 'space-home', labels: ['governance'], section: true },
   { slug: 'readme', title: 'Project README', parent: 'governance', source: 'README.md', labels: ['governance'] },

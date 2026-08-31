@@ -187,6 +187,38 @@ export interface AnalyticsSummary {
   policyActionBreakdown: PolicyActionBreakdownEntry[];
 }
 
+export interface MlModelRecord {
+  version: string;
+  trainingExampleCount: number;
+  holdoutAccuracy: number;
+  trainedAt: string;
+}
+
+export interface ShadowEvalSummary {
+  modelVersion: string;
+  evaluated: number;
+  agreementRate: number;
+  meanProductionScore: number;
+  meanShadowScore: number;
+}
+
+export interface DriftReport {
+  modelVersion: string;
+  sampleSize: number;
+  meanProductionScore: number;
+  meanShadowScore: number;
+  meanAbsoluteDifference: number;
+  driftDetected: boolean;
+}
+
+export interface RolloutConfig {
+  tenantId: string;
+  shadowModelVersion: string | null;
+  rolloutPercentage: number;
+  approvedByUserId: string | null;
+  approvedAt: string | null;
+}
+
 export const api = {
   login: (email: string, password: string) =>
     request<LoginResponse>('/auth/login', null, { method: 'POST', body: JSON.stringify({ email, password }) }),
@@ -218,4 +250,20 @@ export const api = {
 
   getAnalyticsSummary: (token: string, windowDays = 30) =>
     request<AnalyticsSummary>(`/analytics/summary?windowDays=${windowDays}`, token),
+
+  listMlModels: (token: string) => request<MlModelRecord[]>('/ml/models', token),
+
+  trainMlModel: (token: string) => request<MlModelRecord>('/ml/train', token, { method: 'POST' }),
+
+  runShadowEval: (token: string) => request<ShadowEvalSummary>('/ml/shadow-eval/run', token, { method: 'POST' }),
+
+  getDrift: (token: string, modelVersion: string) => request<DriftReport>(`/ml/drift?modelVersion=${modelVersion}`, token),
+
+  getRolloutConfig: (token: string) => request<RolloutConfig>('/ml/rollout', token),
+
+  approveRollout: (token: string, modelVersion: string, rolloutPercentage: number) =>
+    request<RolloutConfig>('/ml/rollout/approve', token, {
+      method: 'POST',
+      body: JSON.stringify({ modelVersion, rolloutPercentage }),
+    }),
 };

@@ -13,6 +13,7 @@ import { InvestigationsModule } from './investigations/investigations.module';
 import { RetentionModule } from './retention/retention.module';
 import { DsrModule } from './dsr/dsr.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { MlModule } from './ml/ml.module';
 import { HealthController } from './health.controller';
 
 @Module({
@@ -32,6 +33,7 @@ import { HealthController } from './health.controller';
     RetentionModule,
     DsrModule,
     AnalyticsModule,
+    MlModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

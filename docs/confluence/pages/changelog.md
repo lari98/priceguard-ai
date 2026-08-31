@@ -23,10 +23,30 @@ v1.3.0  Additional SDK/integrations
 v2.0.0  Major architecture/API/model-generation change
 ```
 
-No version has shipped yet. This repository is pre-1.0.0, in active Phase 3 (Advanced
-Analytics) development, on top of the completed Phase 0–2 foundation below.
+No version has shipped yet. This repository is pre-1.0.0, in active Phase 4 (ML)
+development, on top of the completed Phase 0–3 foundation below.
 
 ## [Unreleased]
+
+### Added (Phase 4 — ML shadow-model pipeline)
+- `apps/api/src/ml/`: real logistic-regression training (`training/logistic-regression.ts`,
+  gradient descent + min-max scaling, unit-tested against a hand-built separable dataset),
+  a Postgres-backed model registry (`ml_models`), shadow evaluation against real ingested
+  risk scores (`ml_shadow_evaluations`), drift detection, and a human-approval-gated
+  staged-rollout config (`ml_rollout_config`, percentages restricted to 0/5/25/50/100).
+- `risk_scores.facts` (new column): the rule engine's raw `FactMap` is now persisted
+  alongside `evidence`, so the shadow model is scored on the exact same features the
+  production rule engine used for that decision (train/serve feature parity).
+- `ML` dashboard page: train/shadow-eval buttons, model registry table, drift readout, and
+  the rollout-approval control — all wired to the real API, admin-gated where appropriate.
+- `docs/adr/0006-ml-shadow-rollout.md`: honest scope statement — what's real (the pipeline
+  mechanics) vs. explicitly not done (the model is illustrative-scale, not production-grade;
+  an approved rollout percentage does not yet gate live traffic; no adversarial-resilience
+  work). Read this before treating Phase 4 as "ML-powered fraud detection in production".
+- Covered by 4 new unit tests (trainer math, not just "doesn't throw") and 5 new e2e tests
+  (real HTTP + real Postgres: train, list, shadow-eval, drift, rollout approve/reject).
+  Full suite after this phase: API lint/typecheck/27 unit/20 e2e all green; web
+  lint/typecheck/build all green.
 
 ### Added (Phase 3 — Advanced Analytics)
 - Batch feature store (`account_feature_snapshots` table, `FeatureStoreService`): nightly

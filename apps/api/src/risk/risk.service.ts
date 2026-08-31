@@ -96,6 +96,7 @@ export class RiskService {
         likelyPrimaryCountry: scoringResult.likelyPrimaryCountry,
         evidence: scoringResult.evidence,
         reasonCodes: scoringResult.evidence.map((e) => e.customerDescription),
+        facts: scoringResult.facts,
         modelVersion: this.scoringService.MODEL_VERSION,
         policyVersion: activePolicy ? `${activePolicy.id}:${activePolicy.version}` : 'none',
       })

@@ -188,6 +188,11 @@ export const riskScores = pgTable('risk_scores', {
   likelyPrimaryCountry: jsonb('likely_primary_country').notNull(),
   evidence: jsonb('evidence').notNull(),
   reasonCodes: jsonb('reason_codes').notNull(),
+  // The raw rule-engine FactMap (ScoringResult.facts) used to evaluate policy rules for
+  // this score — added in Phase 4 so the ML shadow model can be scored on the exact same
+  // features the production rule engine used (train/serve feature parity), rather than
+  // re-deriving an approximation from `evidence`'s human-readable strings.
+  facts: jsonb('facts').notNull().default({}),
   modelVersion: text('model_version').notNull(),
   policyVersion: text('policy_version').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -350,6 +355,56 @@ export const accountFeatureSnapshots = pgTable(
     ),
     index('feature_snapshots_tenant_date_idx').on(t.tenantId, t.snapshotDate),
   ],
+);
+
+// --- Phase 4: ML — model registry, shadow evaluation, staged rollout ---
+//
+// Implements the shadow-model promotion pipeline from the master brief (production model
+// vs. shadow candidate -> comparison -> false-positive evaluation -> human approval ->
+// staged 5/25/50/100% rollout), adopted as-is per docs/PHASE_0_DISCOVERY.md §"Testing".
+// The model itself is a small logistic-regression classifier trained on the synthetic
+// abuse-scenario dataset (docs/ml/ABUSE_SCENARIO_CATALOGUE.md) — illustrative and
+// intentionally small-scale, not production-grade fraud ML; see
+// docs/adr/0006-ml-shadow-rollout.md for the honest scope statement.
+export const mlModels = pgTable('ml_models', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  version: text('version').notNull().unique(),
+  weights: jsonb('weights').notNull(), // { bias: number, features: Record<string, number> }
+  featureNames: jsonb('feature_names').notNull(), // string[]
+  trainingExampleCount: integer('training_example_count').notNull(),
+  holdoutAccuracy: real('holdout_accuracy').notNull(),
+  trainedAt: timestamp('trained_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const mlRolloutConfig = pgTable('ml_rollout_config', {
+  tenantId: uuid('tenant_id')
+    .primaryKey()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  shadowModelVersion: text('shadow_model_version'),
+  rolloutPercentage: integer('rollout_percentage').notNull().default(0), // 0/5/25/50/100
+  approvedByUserId: uuid('approved_by_user_id'),
+  approvedAt: timestamp('approved_at', { withTimezone: true }),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => sql`now()`),
+});
+
+export const mlShadowEvaluations = pgTable(
+  'ml_shadow_evaluations',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    tenantId: uuid('tenant_id').notNull(),
+    riskScoreId: uuid('risk_score_id')
+      .notNull()
+      .references(() => riskScores.id, { onDelete: 'cascade' }),
+    modelVersion: text('model_version').notNull(),
+    productionScore: integer('production_score').notNull(),
+    shadowScore: integer('shadow_score').notNull(),
+    agreement: boolean('agreement').notNull(), // same side of the REQUEST_VERIFICATION threshold
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('ml_shadow_evaluations_tenant_model_idx').on(t.tenantId, t.modelVersion)],
 );
 
 // --- Relations (used by Drizzle's relational query API in read-heavy services) ---
