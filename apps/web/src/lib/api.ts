@@ -160,6 +160,33 @@ export interface AuditLogEntryRow {
   createdAt: string;
 }
 
+export interface RiskTrendPoint {
+  date: string;
+  eventCount: number;
+  avgScore: number | null;
+  highConfidenceCount: number;
+}
+
+export interface CountryBreakdownEntry {
+  country: string;
+  weightedFlags: number;
+}
+
+export interface PolicyActionBreakdownEntry {
+  action: string;
+  count: number;
+}
+
+export interface AnalyticsSummary {
+  windowDays: number;
+  totalEvents: number;
+  totalAccountsSeen: number;
+  avgScore: number | null;
+  trend: RiskTrendPoint[];
+  topCountries: CountryBreakdownEntry[];
+  policyActionBreakdown: PolicyActionBreakdownEntry[];
+}
+
 export const api = {
   login: (email: string, password: string) =>
     request<LoginResponse>('/auth/login', null, { method: 'POST', body: JSON.stringify({ email, password }) }),
@@ -188,4 +215,7 @@ export const api = {
     request<PolicyRow>('/policies', token, { method: 'POST', body: JSON.stringify({ name, rules }) }),
 
   listAuditLog: (token: string) => request<AuditLogEntryRow[]>('/audit-log', token),
+
+  getAnalyticsSummary: (token: string, windowDays = 30) =>
+    request<AnalyticsSummary>(`/analytics/summary?windowDays=${windowDays}`, token),
 };

@@ -1,0 +1,96 @@
+{
+  "_readme": "Synthetic, labelled feature vectors for scenarios 9-14 of docs/ml/ABUSE_SCENARIO_CATALOGUE.md (scenarios 1-8 already have executable specs in scoring.service.spec.ts and don't need duplicating here). Feature names match the rule-engine fact names used elsewhere in this codebase (see src/risk/rule-engine) so Phase 4's training pipeline can reuse the same feature-extraction code path as the live rule engine, not a parallel one. This is synthetic data authored for MVP scaffolding, not real customer traffic — see the catalogue doc's 'Known limitation' section before using this for anything beyond training-pipeline development.",
+  "featureVersion": "v1",
+  "examples": [
+    {
+      "scenarioId": 9,
+      "label": "suspicious",
+      "description": "New account, immediate high-value transaction, no history",
+      "features": {
+        "observationDays": 0,
+        "pricingCountryMismatch": true,
+        "travelProbability": 0.1,
+        "vpnLikelihood": 0.2,
+        "emulatorSuspected": false,
+        "residentialProxySuspected": false,
+        "accountAgeHours": 0.5,
+        "transactionValueZScore": 4.2
+      }
+    },
+    {
+      "scenarioId": 10,
+      "label": "suspicious",
+      "description": "Long-tenured account, sudden device and country change in the same session",
+      "features": {
+        "observationDays": 420,
+        "pricingCountryMismatch": true,
+        "travelProbability": 0.05,
+        "vpnLikelihood": 0.6,
+        "emulatorSuspected": false,
+        "residentialProxySuspected": true,
+        "deviceChangedThisSession": true,
+        "countryChangedThisSession": true
+      }
+    },
+    {
+      "scenarioId": 11,
+      "label": "legitimate",
+      "description": "Frequent business traveler, 8+ countries/year, consistent device",
+      "features": {
+        "observationDays": 300,
+        "pricingCountryMismatch": true,
+        "travelProbability": 0.9,
+        "vpnLikelihood": 0.05,
+        "emulatorSuspected": false,
+        "residentialProxySuspected": false,
+        "deviceChangedThisSession": false,
+        "distinctCountriesPerYear": 9
+      }
+    },
+    {
+      "scenarioId": 12,
+      "label": "suspicious",
+      "description": "Data-center ASN, emulator-suspected device, brand-new account",
+      "features": {
+        "observationDays": 0,
+        "pricingCountryMismatch": false,
+        "travelProbability": 0.0,
+        "vpnLikelihood": 0.95,
+        "emulatorSuspected": true,
+        "residentialProxySuspected": false,
+        "accountAgeHours": 0.1,
+        "isDatacenterAsn": true
+      }
+    },
+    {
+      "scenarioId": 13,
+      "label": "legitimate",
+      "description": "Household sharing one account across two countries, low frequency",
+      "features": {
+        "observationDays": 200,
+        "pricingCountryMismatch": true,
+        "travelProbability": 0.3,
+        "vpnLikelihood": 0.05,
+        "emulatorSuspected": false,
+        "residentialProxySuspected": false,
+        "deviceChangedThisSession": false,
+        "distinctCountriesPerYear": 2
+      }
+    },
+    {
+      "scenarioId": 14,
+      "label": "suspicious",
+      "description": "Reseller/account-farm: same payment method across 50+ accounts, no device overlap (graph-level signal — see Phase 5)",
+      "features": {
+        "observationDays": 10,
+        "pricingCountryMismatch": false,
+        "travelProbability": 0.0,
+        "vpnLikelihood": 0.4,
+        "emulatorSuspected": false,
+        "residentialProxySuspected": false,
+        "sharedPaymentMethodAccountCount": 53,
+        "sharedDeviceAccountCount": 0
+      }
+    }
+  ]
+}

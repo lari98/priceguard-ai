@@ -55,9 +55,19 @@ Rel(api, pg, "Reads/writes", "Drizzle ORM, TLS")
 Rel(api, cache, "Reads/writes rate-limit + cached features", "TLS")
 ```
 
-## Not yet in scope (Phase 3–5 containers, shown for roadmap context only)
+## Phase 3 addition: batch feature store
 
-Feature Store, Event Stream (Kafka-compatible), ML Scoring Service (Python/FastAPI),
-Model Registry, Graph Database (fraud graph) are deliberately **absent** from the MVP
-container diagram above — see ADR-0002 and Phase 0 §M/N. They will be added to this
-document, not silently introduced into code, when their phase begins.
+`account_feature_snapshots` (`apps/api/src/analytics/feature-store.service.ts`) is a
+**batch** feature store — a nightly job aggregating `risk_events`/`sessions`/`risk_scores`
+into per-account daily snapshots — not the streaming Feature Store container originally
+scoped for Phase 3. A real streaming platform (Kafka-compatible event stream feeding a
+columnar analytics store such as ClickHouse) remains deferred until real ingestion volume
+justifies the operational cost (ADR-0002, Phase 0 §M/N); this batch implementation is what
+Phase 4's model training reads from in the meantime.
+
+## Not yet in scope (Phase 4–5 containers, shown for roadmap context only)
+
+Event Stream (Kafka-compatible), ML Scoring Service (Python/FastAPI), Model Registry, Graph
+Database (fraud graph) are still deliberately **absent** from the MVP container diagram
+above. They will be added to this document, not silently introduced into code, when their
+phase begins.

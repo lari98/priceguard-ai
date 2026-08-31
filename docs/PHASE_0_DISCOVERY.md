@@ -66,7 +66,7 @@ PriceGuard AI's differentiated bet: **be the neutral, explainable, multi-signal 
 
 ---
 
-## E. Abuse Scenarios (illustrative, not exhaustive — full catalogue lives in the ML feature/labelling spec in Phase 3)
+## E. Abuse Scenarios (illustrative, not exhaustive — full catalogue is now in `docs/ml/ABUSE_SCENARIO_CATALOGUE.md`, built in Phase 3)
 
 1. **Persistent regional mismatch:** Account registered and billed under Country A's lower price; 95%+ of sessions over a 6-month window originate from Country B; device timezone, locale, and network are consistently Country B; Country A is observed only at signup. High primary-country confidence for B, high abuse-risk score.
 2. **VPN-only edge case:** A single session shows a VPN/datacenter IP from the discount country, but device timezone, language, historical session geography, and payment country are all consistent with the higher-priced country and no other suspicious session exists. Low standalone evidentiary weight — flagged for monitoring, not enforcement.

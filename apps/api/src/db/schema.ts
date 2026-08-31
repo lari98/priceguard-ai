@@ -313,6 +313,45 @@ export const retentionPolicies = pgTable('retention_policies', {
     .$onUpdate(() => sql`now()`),
 });
 
+// --- Phase 3: Advanced Analytics — feature store ---
+//
+// A daily, tenant-scoped, pre-aggregated snapshot of per-account signals (event counts,
+// distinct-country counts, VPN ratio, average/max risk score). Computed by
+// `FeatureStoreService.computeDailySnapshots()` (analytics module) reading straight off
+// `risk_events`/`risk_scores`/`sessions` — a real streaming platform (Kafka/Redpanda +
+// a dedicated analytics DB such as ClickHouse) is deferred per ADR-0002 until real
+// ingestion volume justifies the operational cost; this table is the "feature store"
+// concept implemented at MVP-appropriate scale (batch aggregation, not stream
+// aggregation), so Phase 4's model training has a real, versioned feature source instead
+// of ad hoc joins.
+export const accountFeatureSnapshots = pgTable(
+  'account_feature_snapshots',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    tenantId: uuid('tenant_id').notNull(),
+    endAccountId: uuid('end_account_id')
+      .notNull()
+      .references(() => endAccounts.id, { onDelete: 'cascade' }),
+    snapshotDate: timestamp('snapshot_date', { withTimezone: true, mode: 'date' }).notNull(),
+    eventCount: integer('event_count').notNull().default(0),
+    distinctCountryCount: integer('distinct_country_count').notNull().default(0),
+    distinctIpCount: integer('distinct_ip_count').notNull().default(0),
+    vpnEventRatio: real('vpn_event_ratio').notNull().default(0),
+    avgRiskScore: real('avg_risk_score'),
+    maxRiskScore: integer('max_risk_score'),
+    featureVersion: text('feature_version').notNull().default('v1'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    unique('feature_snapshots_tenant_account_date_unique').on(
+      t.tenantId,
+      t.endAccountId,
+      t.snapshotDate,
+    ),
+    index('feature_snapshots_tenant_date_idx').on(t.tenantId, t.snapshotDate),
+  ],
+);
+
 // --- Relations (used by Drizzle's relational query API in read-heavy services) ---
 
 export const tenantsRelations = relations(tenants, ({ many, one }) => ({
