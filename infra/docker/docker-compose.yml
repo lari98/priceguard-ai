@@ -1,0 +1,111 @@
+# Local development / single-host demo stack for GeoGuard AI.
+#
+# This is NOT a production Kubernetes/ECS manifest (out of scope for the Phase 2 MVP per
+# docs/PHASE_0_DISCOVERY.md) — it exists to let a developer (or evaluator) bring up the
+# whole system with one command and get the same topology CI tests against.
+#
+# Usage (from the repo root):
+#   docker compose -f infra/docker/docker-compose.yml up --build
+#
+# Then: dashboard at http://localhost:3000, API at http://localhost:4000 (Swagger UI at
+# /api/docs), seeded with the synthetic demo tenant from apps/api/src/db/seed.ts if you
+# additionally run:
+#   docker compose -f infra/docker/docker-compose.yml run --rm api-migrate npm run db:seed
+
+services:
+  postgres:
+    # 18-alpine per ADR-0002 (docs/adr/0002-technology-stack.md) — confirmed current major
+    # at the time that decision was made.
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: geoguard
+      POSTGRES_PASSWORD: geoguard_dev_password
+      POSTGRES_DB: geoguard
+    volumes:
+      - geoguard_pgdata:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U geoguard -d geoguard']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  valkey:
+    # Valkey, not Redis — see ADR-0002 for the licensing rationale (Redis Inc.'s SSPL move).
+    image: valkey/valkey:8-alpine
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'valkey-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # One-shot migration job. Deliberately NOT run automatically inside the `api` container's
+  # startup command — running `drizzle-kit`/the migrator every time an API replica restarts
+  # would race other replicas doing the same thing. This runs to completion once, and `api`
+  # waits for it to succeed before starting (see `depends_on` below).
+  api-migrate:
+    build:
+      context: ../../apps/api
+      dockerfile: Dockerfile
+      target: build
+    command: ['npm', 'run', 'db:migrate']
+    environment:
+      DATABASE_URL: postgresql://geoguard:geoguard_dev_password@postgres:5432/geoguard
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build:
+      context: ../../apps/api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://geoguard:geoguard_dev_password@postgres:5432/geoguard
+      VALKEY_URL: redis://valkey:6379
+      # Dev-only defaults — real deployments must override these (see apps/api/.env.example
+      # and SECURITY.md "Secrets management").
+      JWT_SECRET: dev-only-secret-not-for-production-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      JWT_EXPIRES_IN: 8h
+      BCRYPT_SALT_ROUNDS: 12
+      CORS_ALLOWED_ORIGINS: http://localhost:3000
+    ports:
+      - '4000:4000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+      api-migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:4000/healthz']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: ../../apps/web
+      dockerfile: Dockerfile
+      args:
+        # Baked in at build time (Next.js NEXT_PUBLIC_ convention) — this is the URL the
+        # *browser* reaches the API at, so it's the host's published port, not the
+        # in-network service name `api`.
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:4000
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  geoguard_pgdata:
