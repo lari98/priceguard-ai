@@ -22,7 +22,7 @@ export function Sidebar() {
   return (
     <aside className="gg-panel flex h-screen w-60 flex-col p-4">
       <div className="mb-6">
-        <h1 className="text-lg font-semibold">GeoGuard AI</h1>
+        <h1 className="text-lg font-semibold">PriceGuard AI</h1>
         <p className="text-xs" style={{ color: 'var(--gg-muted)' }}>
           {user?.email}
           {user ? ` · ${user.role}` : null}

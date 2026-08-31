@@ -39,7 +39,7 @@ describe('DSR erasure (e2e)', () => {
   it('erases an end account and redacts (not deletes) audit history referencing it', async () => {
     const ingest = await request(app.getHttpServer())
       .post('/v1/risk/events')
-      .set('X-GeoGuard-Api-Key', apiKeyHeader)
+      .set('X-PriceGuard-Api-Key', apiKeyHeader)
       .send({
         accountId: 'acct-to-erase',
         sdkSessionId: 'sess-1',
@@ -64,7 +64,7 @@ describe('DSR erasure (e2e)', () => {
     for (let d = 90; d >= 0; d -= 10) {
       lastIngest = await request(app.getHttpServer())
         .post('/v1/risk/events')
-        .set('X-GeoGuard-Api-Key', apiKeyHeader)
+        .set('X-PriceGuard-Api-Key', apiKeyHeader)
         .send({
           accountId: 'acct-to-erase',
           sdkSessionId: `sess-hist-${d}`,
@@ -80,7 +80,7 @@ describe('DSR erasure (e2e)', () => {
 
     const appealRes = await request(app.getHttpServer())
       .post('/appeals')
-      .set('X-GeoGuard-Api-Key', apiKeyHeader)
+      .set('X-PriceGuard-Api-Key', apiKeyHeader)
       .send({ investigationId, submittedByExternalId: 'acct-to-erase', message: 'Please review my account.' });
     expect(appealRes.status).toBe(201);
 

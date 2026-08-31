@@ -1,6 +1,6 @@
 ---
 title: "Entity-Relationship Diagram"
-space: "GeoGuard AI Engineering"
+space: "PriceGuard AI Engineering"
 parent: "Architecture"
 labels: ["architecture", "data-model"]
 source: "docs/architecture/ERD.md"

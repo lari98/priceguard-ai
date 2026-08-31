@@ -1,6 +1,6 @@
 ---
 title: "Threat Model (STRIDE)"
-space: "GeoGuard AI Engineering"
+space: "PriceGuard AI Engineering"
 parent: "Architecture"
 labels: ["security"]
 source: "docs/architecture/THREAT_MODEL.md"

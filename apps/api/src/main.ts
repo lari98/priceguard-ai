@@ -28,10 +28,10 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter());
 
   const config = new DocumentBuilder()
-    .setTitle('GeoGuard AI Core Risk API')
+    .setTitle('PriceGuard AI Core Risk API')
     .setDescription('Phase 2 MVP — see docs/architecture/openapi.yaml for the hand-authored contract this implements.')
     .setVersion('0.1.0-mvp')
-    .addApiKey({ type: 'apiKey', name: 'X-GeoGuard-Api-Key', in: 'header' }, 'ApiKeyAuth')
+    .addApiKey({ type: 'apiKey', name: 'X-PriceGuard-Api-Key', in: 'header' }, 'ApiKeyAuth')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
@@ -39,7 +39,7 @@ async function bootstrap() {
 
   const port = process.env.PORT ? Number(process.env.PORT) : 4000;
   await app.listen(port);
-  console.log(`GeoGuard API listening on port ${port} (Swagger UI at /api/docs)`);
+  console.log(`PriceGuard API listening on port ${port} (Swagger UI at /api/docs)`);
 }
 
 bootstrap();

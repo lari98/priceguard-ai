@@ -1,4 +1,4 @@
-# Multi-stage build for the GeoGuard admin dashboard (Next.js, standalone output — see
+# Multi-stage build for the PriceGuard admin dashboard (Next.js, standalone output — see
 # next.config.ts). Node version pinned to the exact patch this project was built against,
 # matching apps/api/Dockerfile's rationale.
 FROM node:22.22.2-alpine AS deps
@@ -20,10 +20,10 @@ RUN npm run build
 FROM node:22.22.2-alpine AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
-RUN addgroup -S geoguard && adduser -S geoguard -G geoguard
+RUN addgroup -S priceguard && adduser -S priceguard -G priceguard
 COPY --from=build /app/public ./public
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
-USER geoguard
+USER priceguard
 EXPOSE 3000
 CMD ["node", "server.js"]

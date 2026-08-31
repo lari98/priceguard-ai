@@ -24,13 +24,13 @@ jobs:
       postgres:
         image: postgres:18-alpine
         env:
-          POSTGRES_USER: geoguard
-          POSTGRES_PASSWORD: geoguard_dev_password
-          POSTGRES_DB: geoguard_test
+          POSTGRES_USER: priceguard
+          POSTGRES_PASSWORD: priceguard_dev_password
+          POSTGRES_DB: priceguard_test
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U geoguard -d geoguard_test"
+          --health-cmd "pg_isready -U priceguard -d priceguard_test"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
@@ -46,7 +46,7 @@ jobs:
           --health-retries 10
 
     env:
-      DATABASE_URL: postgresql://geoguard:geoguard_dev_password@localhost:5432/geoguard_test
+      DATABASE_URL: postgresql://priceguard:priceguard_dev_password@localhost:5432/priceguard_test
       JWT_SECRET: ci-only-secret-not-for-production-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
       VALKEY_URL: redis://localhost:6379
       BCRYPT_SALT_ROUNDS: '4' # low cost factor for CI speed only — never used outside tests
@@ -135,13 +135,13 @@ jobs:
         with:
           context: apps/api
           push: false
-          tags: geoguard-api:ci
+          tags: priceguard-api:ci
 
       - name: Build web image
         uses: docker/build-push-action@v6
         with:
           context: apps/web
           push: false
-          tags: geoguard-web:ci
+          tags: priceguard-web:ci
           build-args: |
             NEXT_PUBLIC_API_BASE_URL=http://localhost:4000

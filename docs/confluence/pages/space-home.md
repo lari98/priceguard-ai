@@ -1,8 +1,8 @@
 ---
-title: "GeoGuard AI Engineering"
-space: "GeoGuard AI Engineering"
+title: "PriceGuard AI Engineering"
+space: "PriceGuard AI Engineering"
 labels: ["home"]
 ---
-# GeoGuard AI Engineering
+# PriceGuard AI Engineering
 
 Section page — see child pages below.

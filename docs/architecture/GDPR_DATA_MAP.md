@@ -7,7 +7,7 @@ same PR as any schema change that adds/removes a personal-data field (`CONTRIBUT
 
 | Field / Model | Data | Purpose | Personal data? | Retention tier (see `RetentionPolicy`) |
 |---|---|---|---|---|
-| `EndAccount.externalId` | Tenant's own opaque account identifier | Correlate events to one customer account without GeoGuard needing the tenant's full user profile | Pseudonymous identifier | Account lifetime + tenant retention window |
+| `EndAccount.externalId` | Tenant's own opaque account identifier | Correlate events to one customer account without PriceGuard needing the tenant's full user profile | Pseudonymous identifier | Account lifetime + tenant retention window |
 | `Session.ipAddress` | IP address (stored, not just derived fields) | Needed transiently for geolocation/ASN/VPN-likelihood derivation and impossible-travel detection | Personal data (Art. 4(1)) | **Short** (raw IP tier — default 7 days, tenant-configurable down, not up, past the platform floor) |
 | `Session.derivedCountry`, `Session.asn`, `Session.vpnLikelihood` | Derived network signals | Long-run behavioural features (country entropy, primary-country estimate) | Derived, lower sensitivity than raw IP, but still profiling-relevant | **Medium** (derived-feature tier — default 90 days) |
 | `Device.deviceHash` | SDK-generated device identifier (hashed, not a hardware serial) | Device-account/device-country consistency signal | Pseudonymous identifier | **Medium** |

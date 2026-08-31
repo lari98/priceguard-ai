@@ -5,7 +5,7 @@ import { GlobalExceptionFilter } from '../src/common/filters/http-exception.filt
 
 /**
  * Boots a real Nest application (real Postgres connection via DATABASE_URL, real
- * bcrypt/JWT) against the dedicated `geoguard_test` database — see README.md /
+ * bcrypt/JWT) against the dedicated `priceguard_test` database — see README.md /
  * package.json's `test:e2e` script for how DATABASE_URL is set for this run.
  * No mocking of the database layer: these are true integration tests.
  */

@@ -33,7 +33,7 @@ describe('Risk ingestion pipeline (e2e)', () => {
   });
 
   function post(body: Record<string, unknown>) {
-    return request(app.getHttpServer()).post('/v1/risk/events').set('X-GeoGuard-Api-Key', apiKeyHeader).send(body);
+    return request(app.getHttpServer()).post('/v1/risk/events').set('X-PriceGuard-Api-Key', apiKeyHeader).send(body);
   }
 
   it('a single normal login produces no risk (Scenario 1 shape)', async () => {

@@ -52,7 +52,7 @@ export default function OverviewPage() {
       </div>
 
       <p className="mt-8 text-sm" style={{ color: 'var(--gg-muted)' }}>
-        GeoGuard AI reports a separate &quot;likely primary usage country&quot; alongside every risk score — it never
+        PriceGuard AI reports a separate &quot;likely primary usage country&quot; alongside every risk score — it never
         collapses evidence into a single guilt/innocence flag. Scores above the REQUEST_VERIFICATION threshold always
         route to human review before any restrictive action is taken (see docs/adr/0004 and Article 22 GDPR
         safeguard in policy-engine.service.ts).

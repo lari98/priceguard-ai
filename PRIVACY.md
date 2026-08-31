@@ -1,13 +1,13 @@
 # Privacy Policy (Engineering Reference)
 
-This document describes how the **GeoGuard AI codebase** is designed to handle personal
+This document describes how the **PriceGuard AI codebase** is designed to handle personal
 data. It is an engineering reference, not a substitute for a tenant's own privacy notice,
 DPIA, or legal advice. See `docs/PHASE_0_DISCOVERY.md` §I–J for the full analysis and the
 list of open questions that require qualified EU/German legal review.
 
 ## Roles
 
-GeoGuard AI is designed to act as a **data processor** on behalf of each tenant (the
+PriceGuard AI is designed to act as a **data processor** on behalf of each tenant (the
 **data controller** for their own end users). Tenant configuration, a Data Processing
 Agreement, and a subprocessor register are expected artifacts of Phase 6 — this codebase
 enforces the *technical* side of that split (tenant data isolation, retention, deletion),

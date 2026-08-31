@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: GeoGuard AI Core Risk API
+  title: PriceGuard AI Core Risk API
   version: 0.1.0-mvp
   description: >
     Draft contract for the Phase 2 MVP. This is hand-authored now to fix the contract
@@ -8,7 +8,7 @@ info:
     `/api/docs-json` which must be diffed against this file in CI once both exist
     (tracked follow-up, not yet wired).
 servers:
-  - url: https://api.geoguard.example/v1
+  - url: https://api.priceguard.example/v1
     description: Placeholder — no production domain registered yet.
 security:
   - ApiKeyAuth: []
@@ -92,7 +92,7 @@ components:
     ApiKeyAuth:
       type: apiKey
       in: header
-      name: X-GeoGuard-Api-Key
+      name: X-PriceGuard-Api-Key
   schemas:
     RiskEventInput:
       type: object

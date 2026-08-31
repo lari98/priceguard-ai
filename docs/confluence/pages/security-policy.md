@@ -1,6 +1,6 @@
 ---
 title: "Security Policy"
-space: "GeoGuard AI Engineering"
+space: "PriceGuard AI Engineering"
 parent: "Governance & Process"
 labels: ["security", "governance"]
 source: "SECURITY.md"

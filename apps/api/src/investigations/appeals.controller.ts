@@ -27,7 +27,7 @@ export class AppealsController {
   }
 
   /** Submitted by the tenant's own application on behalf of its end customer — hence
-   *  API-key auth, not dashboard JWT auth (the end customer never talks to GeoGuard
+   *  API-key auth, not dashboard JWT auth (the end customer never talks to PriceGuard
    *  directly, per docs/PHASE_0_DISCOVERY.md persona 5). */
   @ApiSecurity('ApiKeyAuth')
   @UseGuards(ApiKeyGuard)

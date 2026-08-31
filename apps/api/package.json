@@ -1,8 +1,8 @@
 {
-  "name": "@geoguard/api",
+  "name": "@priceguard/api",
   "version": "0.1.0",
   "private": true,
-  "description": "GeoGuard AI Core Risk Platform — NestJS backend (Phase 2 MVP)",
+  "description": "PriceGuard AI Core Risk Platform — NestJS backend (Phase 2 MVP)",
   "license": "UNLICENSED",
   "engines": {
     "node": "22.22.2"

@@ -1,7 +1,7 @@
 ---
 title: "Architecture Decision Records"
-space: "GeoGuard AI Engineering"
-parent: "GeoGuard AI Engineering"
+space: "PriceGuard AI Engineering"
+parent: "PriceGuard AI Engineering"
 labels: ["adr"]
 ---
 # Architecture Decision Records

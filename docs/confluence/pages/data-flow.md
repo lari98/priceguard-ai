@@ -1,6 +1,6 @@
 ---
 title: "Data Flow"
-space: "GeoGuard AI Engineering"
+space: "PriceGuard AI Engineering"
 parent: "Architecture"
 labels: ["architecture"]
 source: "docs/architecture/DATA_FLOW.md"

@@ -1,6 +1,6 @@
 # Self-generated Confluence space (no Atlassian connector)
 
-This folder is GeoGuard AI's documentation packaged as a ready-to-import Confluence space
+This folder is PriceGuard AI's documentation packaged as a ready-to-import Confluence space
 tree — **without** connecting a live Atlassian/Confluence instance. That was a deliberate
 choice by the project owner: work should be organised the way it would be in Confluence,
 but nothing in this pipeline calls the Confluence REST API, stores an API token, or

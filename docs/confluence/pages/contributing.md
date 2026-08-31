@@ -1,6 +1,6 @@
 ---
 title: "Contributing Guide"
-space: "GeoGuard AI Engineering"
+space: "PriceGuard AI Engineering"
 parent: "Governance & Process"
 labels: ["governance"]
 source: "CONTRIBUTING.md"

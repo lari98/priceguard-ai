@@ -1,4 +1,4 @@
-# Local development / single-host demo stack for GeoGuard AI.
+# Local development / single-host demo stack for PriceGuard AI.
 #
 # This is NOT a production Kubernetes/ECS manifest (out of scope for the Phase 2 MVP per
 # docs/PHASE_0_DISCOVERY.md) — it exists to let a developer (or evaluator) bring up the
@@ -19,15 +19,15 @@ services:
     image: postgres:18-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: geoguard
-      POSTGRES_PASSWORD: geoguard_dev_password
-      POSTGRES_DB: geoguard
+      POSTGRES_USER: priceguard
+      POSTGRES_PASSWORD: priceguard_dev_password
+      POSTGRES_DB: priceguard
     volumes:
-      - geoguard_pgdata:/var/lib/postgresql/data
+      - priceguard_pgdata:/var/lib/postgresql/data
     ports:
       - '5432:5432'
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U geoguard -d geoguard']
+      test: ['CMD-SHELL', 'pg_isready -U priceguard -d priceguard']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -55,7 +55,7 @@ services:
       target: build
     command: ['npm', 'run', 'db:migrate']
     environment:
-      DATABASE_URL: postgresql://geoguard:geoguard_dev_password@postgres:5432/geoguard
+      DATABASE_URL: postgresql://priceguard:priceguard_dev_password@postgres:5432/priceguard
     depends_on:
       postgres:
         condition: service_healthy
@@ -68,7 +68,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 4000
-      DATABASE_URL: postgresql://geoguard:geoguard_dev_password@postgres:5432/geoguard
+      DATABASE_URL: postgresql://priceguard:priceguard_dev_password@postgres:5432/priceguard
       VALKEY_URL: redis://valkey:6379
       # Dev-only defaults — real deployments must override these (see apps/api/.env.example
       # and SECURITY.md "Secrets management").
@@ -108,4 +108,4 @@ services:
         condition: service_healthy
 
 volumes:
-  geoguard_pgdata:
+  priceguard_pgdata:

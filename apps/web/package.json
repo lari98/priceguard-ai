@@ -1,8 +1,8 @@
 {
-  "name": "@geoguard/web",
+  "name": "@priceguard/web",
   "version": "0.1.0",
   "private": true,
-  "description": "GeoGuard AI admin dashboard (Next.js) — tenant admin console for risk events, accounts, policy rules, audit log and appeals.",
+  "description": "PriceGuard AI admin dashboard (Next.js) — tenant admin console for risk events, accounts, policy rules, audit log and appeals.",
   "engines": {
     "node": "22.22.2"
   },

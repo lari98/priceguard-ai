@@ -1,11 +1,11 @@
 # ADR 0001: Phase 0 Gate — Scope Discipline and Working Name
 
 ## Context
-The master project brief for GeoGuard AI specifies an extremely large, 56-section, 10+-phase enterprise platform (multi-signal risk engine, ML pipeline, fraud graph, 7+ SDKs, full GDPR compliance suite, enterprise dashboard). The brief itself mandates a phased build, starting with Phase 0 (Discovery) before any implementation, and explicitly forbids placeholder architecture, fake unimplemented functionality, and skipping phases.
+The master project brief for PriceGuard AI specifies an extremely large, 56-section, 10+-phase enterprise platform (multi-signal risk engine, ML pipeline, fraud graph, 7+ SDKs, full GDPR compliance suite, enterprise dashboard). The brief itself mandates a phased build, starting with Phase 0 (Discovery) before any implementation, and explicitly forbids placeholder architecture, fake unimplemented functionality, and skipping phases.
 
 ## Decision
 1. Phase 0 is treated as a hard gate: no code, schema, or infrastructure is created until the Phase 0 discovery document is produced and reviewed.
-2. "GeoGuard AI" is retained as the working/internal name only. No trademark, domain, or naming-conflict clearance has been performed. A formal naming-clearance task is deferred to Phase 10 (Commercial Launch) per the brief's own instruction, and is tracked as open item R-1 in the Phase 0 document.
+2. "PriceGuard AI" is retained as the working/internal name only. No trademark, domain, or naming-conflict clearance has been performed. A formal naming-clearance task is deferred to Phase 10 (Commercial Launch) per the brief's own instruction, and is tracked as open item R-1 in the Phase 0 document.
 3. The MVP (Phase 2) will deliberately implement a narrow, real slice of functionality (tenant mgmt, ingestion API, basic country-mismatch rule engine, explainable score, minimal dashboard, audit log, human-review/appeal path) rather than a thin, partially-fake shell across all 56 brief sections at once.
 4. Human-review and appeal tooling is pulled forward into the MVP definition (rather than left to Phase 6 "Enterprise Compliance") because of the Art. 22 exposure identified in the Phase 0 discovery document — any tenant enabling automated enforcement beyond "warning" needs this from day one.
 

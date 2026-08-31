@@ -38,7 +38,7 @@ describe('Appeals workflow (e2e)', () => {
       const ts = new Date(now.getTime() - d * 24 * 60 * 60 * 1000).toISOString();
       last = await request(app.getHttpServer())
         .post('/v1/risk/events')
-        .set('X-GeoGuard-Api-Key', apiKeyHeader)
+        .set('X-PriceGuard-Api-Key', apiKeyHeader)
         .send({
           accountId: 'acct-appeal-flow',
           sdkSessionId: `sess-${d}`,
@@ -54,7 +54,7 @@ describe('Appeals workflow (e2e)', () => {
 
     const submitRes = await request(app.getHttpServer())
       .post('/appeals')
-      .set('X-GeoGuard-Api-Key', apiKeyHeader)
+      .set('X-PriceGuard-Api-Key', apiKeyHeader)
       .send({ investigationId, submittedByExternalId: 'acct-appeal-flow', message: 'I relocated permanently.' });
     expect(submitRes.status).toBe(201);
     expect(submitRes.body.status).toBe('OPEN');

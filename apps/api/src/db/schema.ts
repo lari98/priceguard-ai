@@ -1,5 +1,5 @@
 /**
- * GeoGuard AI — Phase 2 MVP database schema (Drizzle ORM).
+ * PriceGuard AI — Phase 2 MVP database schema (Drizzle ORM).
  *
  * This is the source of truth for docs/architecture/ERD.md and
  * docs/architecture/GDPR_DATA_MAP.md — keep those in sync with any change here

@@ -3,7 +3,7 @@ import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 import { TenantService } from '../../tenant/tenant.service';
 
-const API_KEY_HEADER = 'x-geoguard-api-key';
+const API_KEY_HEADER = 'x-priceguard-api-key';
 
 /**
  * Authenticates server-to-server callers via a tenant-scoped API key.

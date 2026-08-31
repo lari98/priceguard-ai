@@ -46,6 +46,16 @@ No version has shipped yet. This repository is pre-1.0.0, in active Phase 2 (MVP
   produced by `scripts/generate-confluence-space.js`) — no live Atlassian connection, per
   explicit project-owner instruction.
 
+### Changed
+- Renamed the product from "GeoGuard AI" (working name, see ADR-0001) to **PriceGuard AI**
+  across the entire codebase, per explicit project-owner instruction: npm package scopes
+  (`@geoguard/*` → `@priceguard/*`), the Postgres role/database name, the Swagger API title,
+  the `X-GeoGuard-Api-Key` header (now `X-PriceGuard-Api-Key`), all UI copy (dashboard title,
+  login page, sidebar), Docker/CI service and image names, and every doc (README, PRIVACY,
+  ADRs, architecture set, generated Confluence export). Re-verified after the rename: API
+  lint/typecheck/unit (21 passing)/e2e (11 passing, against a real PostgreSQL instance) and
+  web lint/typecheck/build all pass. GitHub repo: `priceguard-ai`.
+
 ### Fixed
 - `apps/api/package.json`'s `start:prod` script pointed at `dist/main` — the actual Nest
   build output is `dist/src/main.js` (source root is `src/`, per `nest-cli.json`). Found

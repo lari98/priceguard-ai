@@ -1,5 +1,5 @@
 /**
- * Thin, typed client for the GeoGuard API. Every function here maps 1:1 to a real NestJS
+ * Thin, typed client for the PriceGuard API. Every function here maps 1:1 to a real NestJS
  * endpoint in apps/api/src/**\/*.controller.ts (see docs/architecture/openapi.yaml for the
  * contract) — there is no mock data path. The JWT is kept in memory (AuthProvider) and
  * passed explicitly; nothing here reaches into localStorage/sessionStorage, both to avoid

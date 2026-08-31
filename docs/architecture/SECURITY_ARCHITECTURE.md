@@ -14,7 +14,7 @@
    token), so a role downgrade takes effect before the token's nominal expiry on any
    request that re-checks it.
 4. **API ↔ PostgreSQL.** All access via Drizzle/`pg`'s connection pool over TLS in any non-local
-   environment; no service is granted a superuser DB role — a dedicated `geoguard_app` role
+   environment; no service is granted a superuser DB role — a dedicated `priceguard_app` role
    with only the privileges the schema requires is the target for Phase 9 hardening (local
    dev uses a single dev-only role for simplicity, documented as a gap, not hidden).
 5. **API ↔ Valkey.** Used only for rate-limit counters and cached derived features — no

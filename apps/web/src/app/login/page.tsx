@@ -21,7 +21,7 @@ export default function LoginPage() {
       await login(email, password);
       router.push('/overview');
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Unable to reach the GeoGuard API.');
+      setError(err instanceof ApiError ? err.message : 'Unable to reach the PriceGuard API.');
     } finally {
       setSubmitting(false);
     }
@@ -30,7 +30,7 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center p-6">
       <form onSubmit={onSubmit} className="gg-panel w-full max-w-sm p-8">
-        <h1 className="mb-1 text-xl font-semibold">GeoGuard AI</h1>
+        <h1 className="mb-1 text-xl font-semibold">PriceGuard AI</h1>
         <p className="mb-6 text-sm" style={{ color: 'var(--gg-muted)' }}>
           Tenant admin console
         </p>

@@ -5,7 +5,7 @@ export default {
   out: './drizzle/migrations',
   dialect: 'postgresql',
   dbCredentials: {
-    url: process.env.DATABASE_URL ?? 'postgresql://geoguard:geoguard_dev_password@localhost:5432/geoguard',
+    url: process.env.DATABASE_URL ?? 'postgresql://priceguard:priceguard_dev_password@localhost:5432/priceguard',
   },
   verbose: true,
   strict: true,

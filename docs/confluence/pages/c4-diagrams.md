@@ -1,6 +1,6 @@
 ---
 title: "C4 Diagrams"
-space: "GeoGuard AI Engineering"
+space: "PriceGuard AI Engineering"
 parent: "Architecture"
 labels: ["architecture"]
 source: "docs/architecture/C4_DIAGRAMS.md"
@@ -15,17 +15,17 @@ GitHub's native Mermaid rendering, or `docs/confluence/` exports).
 
 ```mermaid
 C4Context
-title GeoGuard AI — System Context (Phase 2 MVP scope)
+title PriceGuard AI — System Context (Phase 2 MVP scope)
 
 Person(analyst, "Trust & Safety Analyst", "Reviews flagged accounts, appeals, investigations")
 Person(devops, "Tenant Developer", "Integrates the risk API/SDK into their app")
-Person(enduser, "End Customer (of the tenant)", "Indirect stakeholder — never talks to GeoGuard directly")
+Person(enduser, "End Customer (of the tenant)", "Indirect stakeholder — never talks to PriceGuard directly")
 
-System_Boundary(geoguard, "GeoGuard AI Platform") {
-  System(core, "GeoGuard Core Risk Platform", "Ingests signals, scores risk, evaluates policy, manages appeals")
+System_Boundary(priceguard, "PriceGuard AI Platform") {
+  System(core, "PriceGuard Core Risk Platform", "Ingests signals, scores risk, evaluates policy, manages appeals")
 }
 
-System_Ext(tenantApp, "Tenant Application", "Streaming/SaaS/gaming/telecom app calling GeoGuard's API/SDK")
+System_Ext(tenantApp, "Tenant Application", "Streaming/SaaS/gaming/telecom app calling PriceGuard's API/SDK")
 System_Ext(psp, "Tenant's Payment Processor", "Shares only tokenized/derived payment-country signals, never raw card data")
 System_Ext(ipintel, "Third-party IP Intelligence Provider", "VPN/proxy/ASN reputation lookups (pluggable, Module A/B)")
 System_Ext(idv, "Third-party Identity/KYC Provider", "Pass/fail verification result only, per data-minimisation design")
@@ -37,19 +37,19 @@ Rel(core, ipintel, "Looks up IP reputation/ASN/VPN likelihood", "HTTPS/REST")
 Rel(core, idv, "Requests identity/residency verification result", "HTTPS/REST")
 Rel(analyst, core, "Reviews risk events, approves/rejects appeals", "Admin dashboard, HTTPS")
 Rel(devops, core, "Configures tenant, policies, API keys", "Admin dashboard / API")
-Rel(enduser, tenantApp, "Uses the subscription/service", "n/a — no direct relationship with GeoGuard")
+Rel(enduser, tenantApp, "Uses the subscription/service", "n/a — no direct relationship with PriceGuard")
 ```
 
 ## Level 2 — Containers (Phase 2 MVP)
 
 ```mermaid
 C4Container
-title GeoGuard AI — Container Diagram (MVP)
+title PriceGuard AI — Container Diagram (MVP)
 
 Person(analyst, "Trust & Safety Analyst")
 System_Ext(tenantApp, "Tenant Application")
 
-System_Boundary(geoguard, "GeoGuard AI Platform") {
+System_Boundary(priceguard, "PriceGuard AI Platform") {
   Container(web, "Admin Dashboard", "Next.js, TypeScript", "Overview, Risk Events, Accounts, Policy/Rules, Audit Logs, Appeals")
   Container(api, "Core API", "NestJS, TypeScript", "Tenant mgmt, auth, risk ingestion, rule engine, scoring, policy, audit, appeals — modular monolith, see ADR-0003")
   ContainerDb(pg, "PostgreSQL 18", "Relational DB", "Tenants, accounts, sessions, risk events/scores, policies, audit log — tenant_id-partitioned")

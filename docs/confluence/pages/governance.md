@@ -1,7 +1,7 @@
 ---
 title: "Governance & Process"
-space: "GeoGuard AI Engineering"
-parent: "GeoGuard AI Engineering"
+space: "PriceGuard AI Engineering"
+parent: "PriceGuard AI Engineering"
 labels: ["governance"]
 ---
 # Governance & Process

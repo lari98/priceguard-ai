@@ -1,10 +1,10 @@
-# GeoGuard AI Engineering
+# PriceGuard AI Engineering
 
 Self-generated Confluence-space export — see `docs/confluence/README.md` for what this is and how to import it. Regenerate with `node scripts/generate-confluence-space.js` any time `docs/` changes.
 
 ## Page tree
 
-- [GeoGuard AI Engineering](pages/space-home.md)
+- [PriceGuard AI Engineering](pages/space-home.md)
   - [Phase 0 — Discovery](pages/phase-0-discovery.md)
   - [Architecture](pages/architecture.md)
     - [C4 Diagrams](pages/c4-diagrams.md)

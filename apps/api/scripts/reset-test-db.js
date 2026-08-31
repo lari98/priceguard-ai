@@ -13,7 +13,7 @@
  */
 const { Client } = require('pg');
 
-const TEST_DATABASE_URL = process.env.DATABASE_URL_TEST ?? 'postgresql://geoguard:geoguard_dev_password@localhost:5432/geoguard_test';
+const TEST_DATABASE_URL = process.env.DATABASE_URL_TEST ?? 'postgresql://priceguard:priceguard_dev_password@localhost:5432/priceguard_test';
 
 function adminUrlFor(testUrl) {
   const url = new URL(testUrl);

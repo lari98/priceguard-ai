@@ -9,7 +9,7 @@ import { Pool } from 'pg';
 
 async function main() {
   const connectionString =
-    process.env.DATABASE_URL ?? 'postgresql://geoguard:geoguard_dev_password@localhost:5432/geoguard';
+    process.env.DATABASE_URL ?? 'postgresql://priceguard:priceguard_dev_password@localhost:5432/priceguard';
   const pool = new Pool({ connectionString });
   const db = drizzle(pool);
 

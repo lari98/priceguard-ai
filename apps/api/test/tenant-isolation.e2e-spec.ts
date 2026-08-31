@@ -70,7 +70,7 @@ describe('Tenant isolation (e2e)', () => {
     // Generate an audit entry for Tenant A via a risk event first.
     await request(app.getHttpServer())
       .post('/v1/risk/events')
-      .set('X-GeoGuard-Api-Key', tenantAApiKey)
+      .set('X-PriceGuard-Api-Key', tenantAApiKey)
       .send({
         accountId: 'acct-isolation-1',
         sdkSessionId: 'sess-1',
@@ -94,7 +94,7 @@ describe('Tenant isolation (e2e)', () => {
   it("Tenant A's API key cannot be used to authenticate as Tenant B (wrong secret for prefix is rejected)", async () => {
     const res = await request(app.getHttpServer())
       .post('/v1/risk/events')
-      .set('X-GeoGuard-Api-Key', 'gg_test_tenant_b.secret-a') // Tenant B's prefix, Tenant A's secret
+      .set('X-PriceGuard-Api-Key', 'gg_test_tenant_b.secret-a') // Tenant B's prefix, Tenant A's secret
       .send({
         accountId: 'acct-x',
         sdkSessionId: 'sess-x',
@@ -110,7 +110,7 @@ describe('Tenant isolation (e2e)', () => {
   it('an end account created under Tenant A is not reachable via Tenant B DSR erasure', async () => {
     const ingestRes = await request(app.getHttpServer())
       .post('/v1/risk/events')
-      .set('X-GeoGuard-Api-Key', tenantAApiKey)
+      .set('X-PriceGuard-Api-Key', tenantAApiKey)
       .send({
         accountId: 'acct-isolation-2',
         sdkSessionId: 'sess-2',

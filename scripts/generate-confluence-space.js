@@ -22,7 +22,7 @@ const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const OUT_DIR = path.join(REPO_ROOT, 'docs', 'confluence', 'pages');
-const SPACE_NAME = 'GeoGuard AI Engineering';
+const SPACE_NAME = 'PriceGuard AI Engineering';
 
 /**
  * The intended Confluence page tree. `source` is relative to the repo root; `slug`
