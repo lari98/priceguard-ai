@@ -61,7 +61,7 @@ Prerequisites: Node.js 22.x, Docker (for Postgres + Valkey), npm 10.x.
 ```bash
 cp .env.example .env
 docker compose -f infra/docker/docker-compose.yml up -d postgres valkey
-cd apps/api && npm install && npm run prisma:migrate && npm run start:dev
+cd apps/api && npm install && npm run db:migrate && npm run db:seed && npm run start:dev
 cd apps/web && npm install && npm run dev
 ```
 
