@@ -71,7 +71,7 @@
     "eslint": "10.8.1",
     "eslint-plugin-security": "^4.0.1",
     "globals": "17.11.0",
-    "jest": "30.4.2",
+    "jest": "30.5.0",
     "jose": "^5.9.6",
     "prettier": "3.9.6",
     "source-map-support": "0.5.21",
