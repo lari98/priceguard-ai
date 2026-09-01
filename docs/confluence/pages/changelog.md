@@ -23,10 +23,48 @@ v1.3.0  Additional SDK/integrations
 v2.0.0  Major architecture/API/model-generation change
 ```
 
-No version has shipped yet. This repository is pre-1.0.0, in active Phase 8 (Scale)
-development, on top of the completed Phase 0–7 foundation below.
+No version has shipped yet. This repository is pre-1.0.0, in active Phase 9 (Production
+Hardening) development, on top of the completed Phase 0–8 foundation below.
 
 ## [Unreleased]
+
+### Added (Phase 9 — Production Hardening: SBOM/SAST, a real DAST-style smoke test, incident response)
+- Real CycloneDX SBOM generation (`npm run sbom` in both `apps/api` and `apps/web`,
+  `@cyclonedx/cyclonedx-npm`), wired into CI and uploaded as a build artifact (not
+  committed — an SBOM goes stale the moment a dependency bumps).
+- A real SAST pass (`npm run lint:security`, `eslint-plugin-security`) wired into CI as an
+  informational (non-blocking) step. All 28 findings from the initial run were manually
+  triaged against real data flow and are false positives (fixed-string keys, TypeScript
+  enum-narrowed keys, bounded numeric indices, DTO-validated strings) — documented in
+  `docs/adr/0011-production-hardening-scope.md`; zero required a code change.
+- A real "DAST-style" smoke test (`apps/api/test/security-smoke.e2e-spec.ts`) firing
+  SQL-injection-shaped, `__proto__`, oversized, XSS-shaped, mass-assignment, and
+  malformed-enum payloads at a real running instance. **Found and fixed a real bug**: an
+  oversized request body threw a plain (non-`HttpException`) `PayloadTooLargeError` that
+  `GlobalExceptionFilter` mapped to a generic 500 instead of the real, safe 413 — the filter
+  now passes through a safe 4xx status from non-Nest errors when one is present.
+- **Real gap found and fixed while writing the incident-response runbooks**: API keys had a
+  `revokedAt` column checked by `ApiKeyGuard` but no endpoint ever set it — there was no way
+  to revoke a compromised key without a direct database edit. Added
+  `GET/POST /tenants/api-keys` and `POST /tenants/api-keys/:keyPrefix/revoke` (ADMIN-only,
+  new `api-keys:manage` RBAC permission), proven end-to-end in
+  `apps/api/test/api-key-management.e2e-spec.ts` (create → the new key really works against
+  ingestion → list without ever exposing the hash → revoke → the same key immediately gets
+  a real 401).
+- `docs/security/INCIDENT_RESPONSE.md`: four runbooks (compromised API key, compromised
+  dashboard account, suspected tenant-isolation breach, ingestion DoS), each tied to a real
+  endpoint and its proving e2e test.
+- `docs/adr/0011-production-hardening-scope.md`: honest scope statement — what's tested vs.
+  explicitly NOT done (real TLS termination, a managed secrets manager, container image
+  scanning, a full DAST scanner run, and formal penetration testing are all design-only or
+  not implemented — this sandbox has no cloud infrastructure to demonstrate them against).
+- Corrected stale "Prisma" references in `SECURITY.md`, `PRIVACY.md`, and
+  `CONTRIBUTING.md` (the project switched to Drizzle in Phase 2 per ADR-0005; the docs had
+  never been updated).
+- Full suite after this phase: API lint/typecheck/28 unit/53 e2e all green (6 new API-key
+  management + 11 new security-smoke e2e tests), SAST/SBOM both run clean in CI, `npm audit
+  --omit=dev --audit-level=high`: 0 vulnerabilities; web unchanged (lint/typecheck/build all
+  green).
 
 ### Added (Phase 8 — Scale: real load testing, a real concurrency-bug fix, capacity tuning)
 - `apps/api/scripts/load-test-ingestion.ts` (`npm run load-test`): real load test of

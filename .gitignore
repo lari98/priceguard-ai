@@ -35,6 +35,10 @@ Thumbs.db
 # Test artifacts
 junit.xml
 
+# Generated SBOMs (Phase 9) — regenerated on demand via `npm run sbom`, uploaded as a CI
+# artifact rather than committed, since they go stale the moment a dependency bumps.
+sbom.json
+
 # Python (sdk/python)
 .venv/
 __pycache__/

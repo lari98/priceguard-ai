@@ -22,6 +22,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:e2e:reset": "node scripts/reset-test-db.js && node scripts/run-with-test-db.js npm run db:migrate && node scripts/run-with-test-db.js npm run test:e2e",
     "load-test": "node scripts/run-with-test-db.js npx ts-node scripts/load-test-ingestion.ts",
+    "sbom": "cyclonedx-npm --output-format JSON --output-file sbom.json",
+    "lint:security": "eslint --config eslint.security.config.mjs \"src/**/*.ts\"",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "ts-node src/db/migrate.ts",
     "db:seed": "ts-node src/db/seed.ts"
@@ -49,6 +51,7 @@
     "uuid": "14.0.2"
   },
   "devDependencies": {
+    "@cyclonedx/cyclonedx-npm": "^6.0.1",
     "@eslint/js": "10.0.1",
     "@nestjs/cli": "11.0.24",
     "@nestjs/testing": "11.2.1",
@@ -66,6 +69,7 @@
     "autocannon": "^7.15.0",
     "drizzle-kit": "0.31.10",
     "eslint": "10.8.1",
+    "eslint-plugin-security": "^4.0.1",
     "globals": "17.11.0",
     "jest": "30.4.2",
     "jose": "^5.9.6",

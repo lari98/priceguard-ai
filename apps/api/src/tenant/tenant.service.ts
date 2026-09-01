@@ -1,5 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
+import { randomBytes } from 'crypto';
+import * as bcrypt from 'bcrypt';
 import { DRIZZLE, DrizzleDb } from '../db/db.provider';
 import * as schema from '../db/schema';
 
@@ -55,5 +57,45 @@ export class TenantService {
       .where(eq(schema.retentionPolicies.tenantId, tenantId))
       .limit(1);
     return policy ?? null;
+  }
+
+  /**
+   * Phase 9 (Production Hardening): API keys previously had no self-service management —
+   * `apiKeys.revokedAt` existed and was checked by `ApiKeyGuard`, but nothing ever set it
+   * outside a direct database edit. A real incident-response runbook
+   * (docs/security/INCIDENT_RESPONSE.md) needs a real "revoke this compromised key" action,
+   * so this closes that gap: list (never returns the hash), create (returns the plaintext
+   * secret exactly once), and revoke.
+   */
+  async listApiKeys(tenantId: string) {
+    const rows = await this.db
+      .select({
+        id: schema.apiKeys.id,
+        keyPrefix: schema.apiKeys.keyPrefix,
+        createdAt: schema.apiKeys.createdAt,
+        revokedAt: schema.apiKeys.revokedAt,
+      })
+      .from(schema.apiKeys)
+      .where(eq(schema.apiKeys.tenantId, tenantId));
+    return rows;
+  }
+
+  /** Returns the plaintext secret exactly once — it is never retrievable again afterward. */
+  async createApiKey(tenantId: string) {
+    const keyPrefix = `gg_live_${randomBytes(8).toString('hex')}`;
+    const secret = randomBytes(24).toString('hex');
+    const keyHash = await bcrypt.hash(secret, 12);
+    const [row] = await this.db.insert(schema.apiKeys).values({ tenantId, keyPrefix, keyHash }).returning();
+    return { keyPrefix: row.keyPrefix, apiKey: `${keyPrefix}.${secret}`, createdAt: row.createdAt };
+  }
+
+  /** Idempotent: revoking an already-revoked (or nonexistent-for-this-tenant) key is a no-op, not an error — an incident responder retrying this call under pressure shouldn't get a confusing failure. */
+  async revokeApiKey(tenantId: string, keyPrefix: string) {
+    const [row] = await this.db
+      .update(schema.apiKeys)
+      .set({ revokedAt: new Date() })
+      .where(and(eq(schema.apiKeys.tenantId, tenantId), eq(schema.apiKeys.keyPrefix, keyPrefix)))
+      .returning({ keyPrefix: schema.apiKeys.keyPrefix, revokedAt: schema.apiKeys.revokedAt });
+    return row ?? null;
   }
 }

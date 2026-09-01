@@ -89,6 +89,26 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: SAST (informational — see docs/adr/0011-production-hardening-scope.md)
+        # eslint-plugin-security's detect-object-injection rule flags every dynamic
+        # property access, most of which are false positives on this codebase's
+        # TypeScript-enum-typed and DTO-validated keys (triaged in the ADR above — zero
+        # findings required a code change as of Phase 9). Reported, not blocking: a new
+        # finding needs human review, not an automatic red build, since the rule's
+        # false-positive rate is too high to gate merges on the raw count.
+        run: npm run lint:security
+        continue-on-error: true
+
+      - name: Generate SBOM (CycloneDX)
+        run: npm run sbom
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-sbom
+          path: apps/api/sbom.json
+          retention-days: 90
+
   web:
     name: Web dashboard (lint, typecheck, build)
     runs-on: ubuntu-latest
@@ -119,6 +139,16 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Generate SBOM (CycloneDX)
+        run: npm run sbom
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-sbom
+          path: apps/web/sbom.json
+          retention-days: 90
 
   docker:
     name: Docker image builds

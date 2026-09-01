@@ -11,26 +11,28 @@
     "build": "next build",
     "start": "next start -p 3000",
     "lint": "eslint . --max-warnings=0",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "sbom": "cyclonedx-npm --output-format JSON --output-file sbom.json"
   },
   "dependencies": {
+    "@tanstack/react-query": "5.101.4",
+    "clsx": "2.1.1",
     "next": "16.3.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "@tanstack/react-query": "5.101.4",
-    "zod": "4.4.3",
-    "clsx": "2.1.1",
-    "recharts": "3.10.1"
+    "recharts": "3.10.1",
+    "zod": "4.4.3"
   },
   "devDependencies": {
-    "typescript": "5.9.3",
+    "@cyclonedx/cyclonedx-npm": "^6.0.1",
+    "@tailwindcss/postcss": "4.3.3",
     "@types/node": "22.14.0",
     "@types/react": "19.2.8",
     "@types/react-dom": "19.2.4",
     "eslint": "9.38.0",
     "eslint-config-next": "16.3.1",
+    "postcss": "8.5.26",
     "tailwindcss": "4.3.3",
-    "@tailwindcss/postcss": "4.3.3",
-    "postcss": "8.5.26"
+    "typescript": "5.9.3"
   }
 }

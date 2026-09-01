@@ -25,6 +25,7 @@ export const PERMISSIONS = [
   'fraud-graph:run',
   'rbac:manage',
   'sso:manage',
+  'api-keys:manage',
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];

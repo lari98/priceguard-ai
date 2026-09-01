@@ -10,7 +10,7 @@
    tests, `npm audit`) before merge, per `.github/PULL_REQUEST_TEMPLATE.md`.
 4. No PR may disable or skip a failing test to make CI green — fix the code or fix the test,
    per the master engineering brief's explicit rule against hiding failures.
-5. Any new personal-data field added to the Prisma schema must be added to
+5. Any new personal-data field added to the Drizzle schema (`apps/api/src/db/schema.ts`) must be added to
    `docs/architecture/GDPR_DATA_MAP.md` in the same PR, with a stated purpose and retention
    tier — enforced in code review, not tooling, for now.
 6. Any non-trivial architectural decision gets an ADR in `docs/adr/` (see `docs/adr/0001-*.md`

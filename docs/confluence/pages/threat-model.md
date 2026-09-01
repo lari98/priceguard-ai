@@ -21,7 +21,7 @@ the table) at the start of every subsequent phase that adds a new container per 
 | 6 | Audit log | Repudiation | An analyst denies having approved an enforcement action | Every `AuditLogEntry` records `actorId`, `actorType`, `tenantId`, `action`, `beforeState`/`afterState` snapshot, and `createdAt`; the table is insert-only at the application layer (no `UPDATE`/`DELETE` service method exists for it) |
 | 7 | Ingestion API | Denial of Service | Flood of fake risk events exhausts DB/compute | `@nestjs/throttler` rate limits `/v1/risk/events` (tunable via `RISK_INGESTION_RATE_LIMIT`, Phase 8), real-load-tested (`docs/performance/PHASE_8_LOAD_TEST.md`) confirming 429 rejection past the limit; **known gap, tracked by IP not tenant/API key, and enforced per-replica not cluster-wide** (ADR-0010) — not a substitute for edge/CDN-level DDoS protection (Phase 9 item) |
 | 8 | Any future outbound enrichment call | SSRF | A malicious or malformed URL/host causes the server to make requests to internal infrastructure | No outbound enrichment exists in the MVP (see ADR-0002 — IP-intelligence integration is a documented Phase 2/3 follow-up, not built yet); this row exists so the control (egress allowlist) is designed in before that code is written, not after |
-| 9 | Dependency supply chain | Tampering | A compromised npm dependency introduces malicious code | `npm audit` runs in CI; Dependabot opens weekly update PRs; full SBOM generation and SAST/DAST are Phase 9 items (not yet implemented — see `SECURITY.md` "Known gaps") |
+| 9 | Dependency supply chain | Tampering | A compromised npm dependency introduces malicious code | `npm audit` runs in CI; Dependabot opens weekly update PRs; **as of Phase 9**: real CycloneDX SBOM generation runs in CI (uploaded as a build artifact), a SAST pass (`eslint-plugin-security`) runs informationally in CI with its 28 findings triaged (all false positives — ADR-0011), and a small real "DAST-style" smoke test (`security-smoke.e2e-spec.ts`) found and fixed a genuine 413-vs-500 bug; container image scanning and a full DAST scanner run remain not implemented (ADR-0011) |
 | 10 | Appeals workflow | Elevation of Privilege | An end-customer's appeal submission is used as an injection vector into analyst tooling (e.g., stored XSS in the dashboard) | Appeal free-text fields are stored as-is but rendered in the Next.js dashboard through React's default escaping (no `dangerouslySetInnerHTML` used anywhere in `apps/web`); the submission path itself is covered by `apps/api/test/appeals.e2e-spec.ts` |
 
 ## Explicitly deferred to later phases (not solved by this document or the MVP code)
@@ -34,4 +34,7 @@ done"); regional failover/disaster-recovery threats and multi-region deployment 
 at a design level only in Phase 8 (ADR-0010), not built or tested** (this project has never
 run as more than one process against more than one Postgres instance); graceful-shutdown
 drain on SIGTERM — found missing while load-testing Phase 8, not yet fixed (ADR-0010);
-formal penetration test — Phase 9.
+formal penetration test, real TLS termination infrastructure, a managed secrets manager,
+container image scanning, and a full DAST scanner run — all Phase 9, all still
+design-only/not implemented (ADR-0011); this sandbox has no cloud infrastructure to
+demonstrate them against.

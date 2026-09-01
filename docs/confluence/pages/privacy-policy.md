@@ -37,7 +37,7 @@ not the contractual side.
 
 ## Retention, as implemented
 
-Every tenant has a `RetentionPolicy` record (see Prisma schema) governing how long raw
+Every tenant has a `RetentionPolicy` record (see the Drizzle schema, `apps/api/src/db/schema.ts` — ADR-0005) governing how long raw
 session/IP observations, derived risk features, risk events, and audit logs are kept.
 A scheduled deletion job (`apps/api/src/retention/retention.service.ts`) enforces these
 windows. Defaults are conservative (see the schema's `@default` values); tenants can

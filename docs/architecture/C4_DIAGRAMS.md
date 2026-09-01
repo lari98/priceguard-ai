@@ -110,6 +110,18 @@ topology found and fixed a genuine concurrency bug (a check-then-act race in acc
 upsert logic). Multi-region deployment and a dedicated scoring service (which would add new
 containers to this diagram) were evaluated and explicitly NOT built — see ADR-0010 for why.
 
+## Phase 9 addition: production hardening — SBOM/SAST/DAST smoke test, no new containers
+
+No new container this phase either — see ADR-0011. Real CycloneDX SBOM generation and an
+informational SAST pass (`eslint-plugin-security`) now run in CI; a small real "DAST-style"
+smoke test found and fixed a genuine bug (an oversized request body was mapped to a 500
+instead of a safe 413). A previously-missing capability — revoking a compromised API key —
+was added (`POST /tenants/api-keys/:keyPrefix/revoke`) after writing the incident-response
+runbooks (`docs/security/INCIDENT_RESPONSE.md`) exposed the gap. TLS termination, a managed
+secrets manager, container image scanning, and a full DAST scanner run remain design-only —
+this sandbox has no load balancer, cloud secrets manager, or container registry to
+demonstrate them against.
+
 ## Not yet in scope (roadmap context only)
 
 Event Stream (Kafka-compatible, still deferred per ADR-0002) is still deliberately
