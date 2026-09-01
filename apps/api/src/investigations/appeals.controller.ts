@@ -7,6 +7,8 @@ import { ApiKeyGuard } from '../auth/guards/api-key.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { PermissionsGuard } from '../common/guards/permissions.guard';
+import { RequirePermission } from '../common/decorators/require-permission.decorator';
 import { CurrentAuthContext, CurrentTenant } from '../common/decorators/current-tenant.decorator';
 import { AuthContext } from '../common/request-context';
 
@@ -36,9 +38,15 @@ export class AppealsController {
     return this.investigationsService.submitAppeal(tenantId, dto.investigationId, dto.submittedByExternalId, dto.message);
   }
 
+  // Phase 6: fine-grained permission ('appeals:decide') instead of a fixed role list — a
+  // tenant ADMIN can grant or revoke this independently of the ADMIN/ANALYST/VIEWER role
+  // itself via POST /rbac/overrides. RolesGuard('ADMIN','ANALYST') is kept as a coarse
+  // floor (VIEWER can never decide appeals, override or not) with PermissionsGuard adding
+  // the actual fine-grained check on top.
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
   @Roles('ADMIN', 'ANALYST')
+  @RequirePermission('appeals:decide')
   @Post(':id/decision')
   async decide(
     @CurrentTenant() tenantId: string,

@@ -89,6 +89,13 @@ Graph Database container originally scoped — see ADR-0007 for the full reasoni
 gap it found and fixed (`device_account_links`), and what's explicitly deferred (clusters
 don't yet feed policy decisions; no fuzzy/similarity matching; no dedicated graph engine).
 
+## Phase 6 addition: OIDC SSO, fine-grained RBAC, DSAR export, session revocation
+
+`apps/api/src/sso/`, `src/rbac/`, `src/dsr/export.service.ts` — see ADR-0008 for what's
+genuinely tested (a real fake-but-spec-compliant OIDC provider, not a live vendor IdP) and
+what's explicitly deferred (SAML, MFA; the SSO callback returns JSON, not yet a browser
+redirect into the dashboard SPA).
+
 ## Not yet in scope (roadmap context only)
 
 Event Stream (Kafka-compatible, still deferred per ADR-0002) is still deliberately

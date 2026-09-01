@@ -226,6 +226,23 @@ export interface FraudCluster {
   sharedPaymentTokens: string[];
 }
 
+export interface SsoConfigView {
+  tenantId: string;
+  issuerUrl: string;
+  clientId: string;
+  redirectUri: string;
+  enabled: boolean;
+}
+
+export interface RoleOverride {
+  id: string;
+  role: TenantRole;
+  permission: string;
+  granted: boolean;
+}
+
+export type EffectivePermissions = Record<TenantRole, string[]>;
+
 export const api = {
   login: (email: string, password: string) =>
     request<LoginResponse>('/auth/login', null, { method: 'POST', body: JSON.stringify({ email, password }) }),
@@ -279,4 +296,20 @@ export const api = {
 
   runFraudClusterDetection: (token: string, minClusterSize = 3) =>
     request<FraudCluster[]>(`/fraud-graph/clusters/run?minClusterSize=${minClusterSize}`, token, { method: 'POST' }),
+
+  getSsoConfig: (token: string) => request<SsoConfigView | null>('/sso/config', token),
+
+  setSsoConfig: (token: string, input: { issuerUrl: string; clientId: string; clientSecret: string; redirectUri: string; enabled: boolean }) =>
+    request<SsoConfigView>('/sso/config', token, { method: 'POST', body: JSON.stringify(input) }),
+
+  listAllPermissions: (token: string) => request<string[]>('/rbac/permissions', token),
+
+  getEffectivePermissions: (token: string) => request<EffectivePermissions>('/rbac/effective', token),
+
+  listRoleOverrides: (token: string) => request<RoleOverride[]>('/rbac/overrides', token),
+
+  setRoleOverride: (token: string, role: TenantRole, permission: string, granted: boolean) =>
+    request<RoleOverride>('/rbac/overrides', token, { method: 'POST', body: JSON.stringify({ role, permission, granted }) }),
+
+  logoutAll: (token: string) => request<{ loggedOut: boolean }>('/auth/logout-all', token, { method: 'POST' }),
 };

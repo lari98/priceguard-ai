@@ -10,6 +10,8 @@ export interface AuthContext {
   actorType: ActorType;
   actorId: string;
   role?: 'ADMIN' | 'ANALYST' | 'VIEWER';
+  /** Present for JWT-authenticated requests only — the current token's id (Phase 6 session revocation). */
+  jti?: string;
 }
 
 declare module 'express' {

@@ -15,10 +15,50 @@ v1.3.0  Additional SDK/integrations
 v2.0.0  Major architecture/API/model-generation change
 ```
 
-No version has shipped yet. This repository is pre-1.0.0, in active Phase 5 (Fraud Graph)
-development, on top of the completed Phase 0–4 foundation below.
+No version has shipped yet. This repository is pre-1.0.0, in active Phase 6 (Enterprise
+Compliance) development, on top of the completed Phase 0–5 foundation below.
 
 ## [Unreleased]
+
+### Added (Phase 6 — Enterprise Compliance: SSO, fine-grained RBAC, DSAR export, session revocation)
+- `apps/api/src/sso/`: real OIDC authorization-code + PKCE (S256) relying-party using
+  `openid-client` v5 — discovery, nonce validation, and id_token signature verification via
+  the IdP's published JWKS; tenant-configurable issuer/client credentials (secret never
+  echoed back, even to the admin who set it). Tested against a real self-authored
+  spec-compliant fake OIDC provider (`test/support/fake-oidc-provider.ts` — real HTTP
+  server, real RSA keypair, real JWKS endpoint, real PKCE verification), not a mocked HTTP
+  layer — proves the protocol implementation is correct even though no live vendor IdP
+  (Okta/Azure AD/Auth0) was exercised (see ADR-0008).
+- `apps/api/src/rbac/`, `src/common/permissions.ts`: fine-grained named permissions layered
+  on the fixed ADMIN/ANALYST/VIEWER roles, with per-tenant DB overrides. Wired onto a real
+  endpoint (`appeals:decide` on `POST /appeals/:id/decision`) as a working example, not left
+  as an unused abstraction.
+- Session revocation: every JWT now carries a `tokenVersion` claim checked against
+  `tenant_users.token_version` (bulk revocation — "log out everywhere" and admin-forced
+  revocation of another user's sessions) plus a `jti` blocklist (`revoked_tokens`,
+  single-session logout) — closes the gap `docs/architecture/THREAT_MODEL.md` had flagged
+  as a pending Phase 6 hardening item. New endpoints: `POST /auth/logout`,
+  `POST /auth/logout-all`, `POST /auth/users/:userId/revoke-sessions`.
+- `apps/api/src/dsr/export.service.ts`: DSAR self-service export
+  (`GET /dsr/end-accounts/:id/export`) — the Art. 15/20 access/portability complement to
+  Phase 2's Art. 17 erasure endpoint (ADR-0004); gathers every row of personal data the
+  platform holds for one end-account via the real riskEvents→riskScores→policyDecisions→
+  investigations→appeals foreign-key chain.
+- Real gap found and fixed while wiring SSO: `tenant_users.role` defaulted `ANALYST`;
+  SSO-provisioned users now correctly default to the more conservative `VIEWER`, since an
+  IdP-authenticated identity has no tenant-side vetting of what access level it should start
+  with.
+- New combined `Settings` dashboard page (SSO config, RBAC permission matrix, session
+  revocation control), ADMIN-gated.
+- `docs/adr/0008-enterprise-compliance-scope.md`: full honest-scope statement — what's
+  genuinely tested (see above) vs. explicitly NOT done: no live vendor IdP tested, no SAML,
+  no MFA, the SSO callback returns JSON rather than a browser redirect into the dashboard
+  SPA, and `revoked_tokens`/`sso_login_attempts` rows are never purged. Read this before
+  treating Phase 6 as "enterprise-ready" without qualification.
+- 5 new unit-adjacent RBAC/session e2e tests plus 3 new SSO e2e tests (8 new e2e tests
+  total), plus the existing DSAR erasure suite extended with export assertions. Full suite
+  after this phase: API lint/typecheck/28 unit/31 e2e all green; web lint/typecheck/build
+  all green (15 routes, including the new `/settings` page).
 
 ### Added (Phase 5 — Fraud graph, Scenario 8)
 - `apps/api/src/fraud-graph/`: real connected-components clustering (union-find,

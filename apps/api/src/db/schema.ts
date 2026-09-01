@@ -23,6 +23,7 @@ import { relations, sql } from 'drizzle-orm';
 
 export const dataResidencyEnum = pgEnum('data_residency', ['EU', 'OTHER']);
 export const tenantRoleEnum = pgEnum('tenant_role', ['ADMIN', 'ANALYST', 'VIEWER']);
+export const authProviderEnum = pgEnum('auth_provider', ['LOCAL', 'OIDC']);
 export const policyActionEnum = pgEnum('policy_action', [
   'NONE',
   'MONITOR',
@@ -63,8 +64,16 @@ export const tenantUsers = pgTable(
       .notNull()
       .references(() => tenants.id, { onDelete: 'cascade' }),
     email: text('email').notNull(),
-    passwordHash: text('password_hash').notNull(),
+    // Nullable: a Phase 6 SSO-provisioned user (authProvider='OIDC') has no local password
+    // at all — the login DTO/service must reject a local-password login attempt for such
+    // a user rather than treating a null hash as "any password fails" ambiguously.
+    passwordHash: text('password_hash'),
     role: tenantRoleEnum('role').notNull().default('ANALYST'),
+    authProvider: authProviderEnum('auth_provider').notNull().default('LOCAL'),
+    // Bumped to instantly invalidate every previously issued JWT for this user (e.g. an
+    // admin-triggered "log out everywhere", or a role/deactivation change) — see
+    // docs/adr/0008-enterprise-compliance-scope.md and JwtAuthGuard's tokenVersion check.
+    tokenVersion: integer('token_version').notNull().default(0),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [unique('tenant_users_tenant_email_unique').on(t.tenantId, t.email), index('tenant_users_tenant_idx').on(t.tenantId)],
@@ -453,6 +462,82 @@ export const fraudClusters = pgTable(
     detectedAt: timestamp('detected_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index('fraud_clusters_tenant_idx').on(t.tenantId)],
+);
+
+// --- Phase 6: Enterprise Compliance ---
+//
+// SSO (OIDC), fine-grained RBAC overrides, and session revocation — see
+// docs/adr/0008-enterprise-compliance-scope.md for what's genuinely tested (a real OIDC
+// authorization-code flow against a real, self-hosted-for-tests OIDC provider) vs. what
+// still needs a live enterprise IdP (Okta/Azure AD/Auth0) to fully validate.
+export const ssoConfigs = pgTable('sso_configs', {
+  tenantId: uuid('tenant_id')
+    .primaryKey()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  issuerUrl: text('issuer_url').notNull(),
+  clientId: text('client_id').notNull(),
+  clientSecret: text('client_secret').notNull(),
+  redirectUri: text('redirect_uri').notNull(),
+  enabled: boolean('enabled').notNull().default(true),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => sql`now()`),
+});
+
+export const ssoIdentities = pgTable(
+  'sso_identities',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    tenantId: uuid('tenant_id').notNull(),
+    tenantUserId: uuid('tenant_user_id')
+      .notNull()
+      .references(() => tenantUsers.id, { onDelete: 'cascade' }),
+    subject: text('subject').notNull(), // OIDC 'sub' claim
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [unique('sso_identities_tenant_subject_unique').on(t.tenantId, t.subject)],
+);
+
+// Short-lived, server-side state for an in-flight OIDC authorization-code flow (PKCE
+// verifier + nonce) — this API is stateless/cookieless (no server-side session store),
+// so the `state` param returned by the IdP is the lookup key back to what we need to
+// complete the flow, instead of storing it in a cookie the callback redirect would need
+// to carry. Rows here are expected to be short-lived (an interactive login typically
+// completes in well under a minute); nothing currently purges stale/abandoned attempts —
+// flagged the same way as revoked_tokens' unpurged-expired-rows note.
+export const ssoLoginAttempts = pgTable('sso_login_attempts', {
+  state: text('state').primaryKey(),
+  tenantId: uuid('tenant_id').notNull(),
+  nonce: text('nonce').notNull(),
+  codeVerifier: text('code_verifier').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const revokedTokens = pgTable('revoked_tokens', {
+  jti: uuid('jti').primaryKey(),
+  tenantUserId: uuid('tenant_user_id').notNull(),
+  revokedAt: timestamp('revoked_at', { withTimezone: true }).notNull().defaultNow(),
+  // JWTs are short-lived (JWT_EXPIRES_IN, default 8h) — an entry here is only meaningful
+  // until the token would have expired anyway. Nothing currently purges expired rows;
+  // flagged as a small, low-risk follow-up rather than solved here (this table stays
+  // tiny in practice: single-session logout is not a high-frequency action).
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+});
+
+export const rolePermissionOverrides = pgTable(
+  'role_permission_overrides',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    tenantId: uuid('tenant_id')
+      .notNull()
+      .references(() => tenants.id, { onDelete: 'cascade' }),
+    role: tenantRoleEnum('role').notNull(),
+    permission: text('permission').notNull(),
+    granted: boolean('granted').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [unique('role_permission_overrides_unique').on(t.tenantId, t.role, t.permission)],
 );
 
 // --- Relations (used by Drizzle's relational query API in read-heavy services) ---

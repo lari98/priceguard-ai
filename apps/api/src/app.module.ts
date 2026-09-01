@@ -15,6 +15,8 @@ import { DsrModule } from './dsr/dsr.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { MlModule } from './ml/ml.module';
 import { FraudGraphModule } from './fraud-graph/fraud-graph.module';
+import { RbacModule } from './rbac/rbac.module';
+import { SsoModule } from './sso/sso.module';
 import { HealthController } from './health.controller';
 
 @Module({
@@ -36,6 +38,8 @@ import { HealthController } from './health.controller';
     AnalyticsModule,
     MlModule,
     FraudGraphModule,
+    RbacModule,
+    SsoModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

@@ -26,6 +26,6 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
   // Re-exports TenantModule so that any module importing AuthModule to use its guards
   // also gets TenantService available — required because Nest constructs a guard's
   // dependencies using the *consuming* controller's module context, not AuthModule's.
-  exports: [forwardRef(() => TenantModule), ApiKeyGuard, JwtAuthGuard, JwtModule],
+  exports: [forwardRef(() => TenantModule), ApiKeyGuard, JwtAuthGuard, JwtModule, AuthService],
 })
 export class AuthModule {}

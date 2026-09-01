@@ -88,6 +88,20 @@ describe('DSR erasure (e2e)', () => {
     const mentionedBefore = auditBeforeErasure.some((row) => JSON.stringify(row.afterState ?? {}).includes('acct-to-erase'));
     expect(mentionedBefore).toBe(true); // sanity check: the test setup actually created a reference worth redacting
 
+    // Phase 6 DSAR self-service export ("right to access") — must reflect the real data
+    // that exists right now, before erasure removes it.
+    const exportRes = await request(app.getHttpServer())
+      .get(`/dsr/end-accounts/${endAccountId}/export`)
+      .set('Authorization', `Bearer ${jwt}`);
+    expect(exportRes.status).toBe(200);
+    expect(exportRes.body.account.externalId).toBe('acct-to-erase');
+    expect(exportRes.body.riskEvents.length).toBeGreaterThan(0);
+    expect(exportRes.body.appeals.length).toBeGreaterThan(0);
+    const exportAuditActions = (await request(app.getHttpServer()).get('/audit-log').set('Authorization', `Bearer ${jwt}`)).body.map(
+      (e: { action: string }) => e.action,
+    );
+    expect(exportAuditActions).toContain('END_ACCOUNT_DATA_EXPORTED');
+
     const eraseRes = await request(app.getHttpServer())
       .delete(`/dsr/end-accounts/${endAccountId}`)
       .set('Authorization', `Bearer ${jwt}`);

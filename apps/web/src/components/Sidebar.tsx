@@ -10,6 +10,7 @@ const NAV = [
   { href: '/analytics', label: 'Analytics' },
   { href: '/ml', label: 'ML' },
   { href: '/fraud-graph', label: 'Fraud Graph' },
+  { href: '/settings', label: 'Settings' },
   { href: '/risk-events', label: 'Risk Events' },
   { href: '/accounts', label: 'Accounts' },
   { href: '/investigations', label: 'Investigations' },

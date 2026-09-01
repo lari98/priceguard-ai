@@ -50,3 +50,16 @@ export async function seedTenantWithApiKeyAndPolicy(
 
   return { tenant, apiKeyHeader: `${opts.apiKeyPrefix}.${opts.apiKeySecret}` };
 }
+
+/** Adds one more dashboard user to an already-seeded tenant — e.g. a non-ADMIN role for RBAC/permission tests. */
+export async function createTenantUser(
+  db: ReturnType<typeof drizzle>,
+  opts: { tenantId: string; email: string; password: string; role: 'ADMIN' | 'ANALYST' | 'VIEWER' },
+) {
+  const passwordHash = await bcrypt.hash(opts.password, 4);
+  const [user] = await db
+    .insert(schema.tenantUsers)
+    .values({ tenantId: opts.tenantId, email: opts.email, passwordHash, role: opts.role })
+    .returning();
+  return user;
+}
