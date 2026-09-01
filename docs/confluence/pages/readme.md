@@ -51,6 +51,10 @@ docs/
   architecture/   C4 diagrams, ERD, data-flow diagrams, OpenAPI spec, security & GDPR docs
   adr/            Architecture Decision Records
   compliance/     Draft compliance documents (DPIA template, retention policy, model card, etc.)
+  security/       Incident response runbooks (Phase 9)
+  performance/    Load test results (Phase 8)
+  business/       Pricing model (Phase 10)
+  GA_LAUNCH_CHECKLIST.md  Consolidated, honest GA-readiness checklist (Phase 10) — read before any launch decision
   confluence/     Confluence-import-ready copies of the docs above (Confluence-style page tree)
 tests/
   e2e/            Cross-app end-to-end tests
@@ -102,5 +106,9 @@ limits; see `docs/PHASE_0_DISCOVERY.md` §O and each phase's ADR for what's real
 explicitly deferred. Multi-region/HA deployment, real TLS termination, a managed secrets
 manager, container image scanning, a full DAST scanner run, and formal penetration testing
 remain design-only or not yet done — this sandbox has no cloud infrastructure to
-demonstrate them against (ADR-0010, ADR-0011).
+demonstrate them against (ADR-0010, ADR-0011). A working pricing model
+(`docs/business/PRICING_MODEL.md`) and a consolidated GA-readiness checklist
+(`docs/GA_LAUNCH_CHECKLIST.md`) were prepared in Phase 10, but **v1.0.0 has not been cut**
+— the checklist's "Blocking for GA" section (TLS termination, a secrets manager, trademark
+clearance, live-IdP-tested SSO, a named SLA, legal/privacy counsel review) is non-empty.
 Do not deploy this to handle real customer data without completing that remaining list.

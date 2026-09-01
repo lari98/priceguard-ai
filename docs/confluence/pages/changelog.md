@@ -23,10 +23,33 @@ v1.3.0  Additional SDK/integrations
 v2.0.0  Major architecture/API/model-generation change
 ```
 
-No version has shipped yet. This repository is pre-1.0.0, in active Phase 9 (Production
-Hardening) development, on top of the completed Phase 0–8 foundation below.
+No version has shipped yet. Phase 10 (Commercial Launch prep) is complete, but **v1.0.0 has
+deliberately not been cut** — see `docs/GA_LAUNCH_CHECKLIST.md`'s "Blocking for GA" table.
+This repository remains pre-1.0.0 on top of the completed Phase 0–9 foundation below.
 
 ## [Unreleased]
+
+### Added (Phase 10 — Commercial Launch prep: pricing model, GA launch checklist)
+- `docs/business/PRICING_MODEL.md`: a concrete hybrid pricing structure (free self-serve
+  tier, a usage-based Growth tier, a quote-based Enterprise tier) elaborating the
+  preliminary candidates from `docs/PHASE_0_DISCOVERY.md` §Q, grounded in researched 2026
+  pricing from comparable fraud/risk-API vendors (MaxMind, IPQualityScore, SEON, Sift,
+  Kount) and in this platform's own real architecture (Phase 8's load-test cost profile,
+  Phase 6's Enterprise-tier feature investment). Explicitly flagged as a starting
+  hypothesis for real pilot negotiations, not a validated price list — no real customer has
+  paid for this platform yet.
+- `docs/GA_LAUNCH_CHECKLIST.md`: a single, honest consolidation of every gap flagged across
+  all eleven ADRs, `SECURITY.md`, and `docs/architecture/THREAT_MODEL.md`, split into
+  "Blocking for GA" (real TLS termination, a managed secrets manager, trademark clearance,
+  live-vendor-IdP-tested SSO, a named SLA, legal/privacy counsel review) and "not blocking
+  but should close soon after GA" (container scanning, a full DAST scanner run, formal
+  penetration testing, multi-region deployment, and the rest of each phase's documented
+  gaps). Recommendation: do not tag v1.0.0 until the blocking table is empty.
+- **No version was cut this phase.** Per this project's anti-overclaiming discipline
+  (`docs/PHASE_0_DISCOVERY.md` §R's own "do not represent as compliant/complete without
+  real validation" stance, applied consistently through every phase's ADR), preparing GA
+  collateral is not the same as being GA-ready, and this repository does not claim
+  otherwise.
 
 ### Added (Phase 9 — Production Hardening: SBOM/SAST, a real DAST-style smoke test, incident response)
 - Real CycloneDX SBOM generation (`npm run sbom` in both `apps/api` and `apps/web`,

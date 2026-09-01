@@ -57,6 +57,8 @@ const PAGE_TREE = [
   { slug: 'phase-8-load-test', title: 'Phase 8 Load Test Results', parent: 'space-home', source: 'docs/performance/PHASE_8_LOAD_TEST.md', labels: ['performance'] },
   { slug: 'adr-0011', title: 'ADR-0011: Phase 9 Production Hardening Scope', parent: 'adrs', source: 'docs/adr/0011-production-hardening-scope.md', labels: ['adr', 'security'] },
   { slug: 'incident-response', title: 'Incident Response Runbooks', parent: 'space-home', source: 'docs/security/INCIDENT_RESPONSE.md', labels: ['security'] },
+  { slug: 'pricing-model', title: 'Pricing Model', parent: 'space-home', source: 'docs/business/PRICING_MODEL.md', labels: ['business', 'commercial'] },
+  { slug: 'ga-launch-checklist', title: 'GA Launch Checklist', parent: 'space-home', source: 'docs/GA_LAUNCH_CHECKLIST.md', labels: ['business', 'commercial'] },
 
   { slug: 'ml', title: 'Machine Learning', parent: 'space-home', labels: ['ml'], section: true },
   { slug: 'abuse-scenario-catalogue', title: 'Abuse Scenario Catalogue', parent: 'ml', source: 'docs/ml/ABUSE_SCENARIO_CATALOGUE.md', labels: ['ml', 'phase-3', 'phase-4'] },

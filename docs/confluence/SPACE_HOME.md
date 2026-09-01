@@ -27,6 +27,8 @@ Self-generated Confluence-space export — see `docs/confluence/README.md` for w
     - [ADR-0011: Phase 9 Production Hardening Scope](pages/adr-0011.md)
   - [Phase 8 Load Test Results](pages/phase-8-load-test.md)
   - [Incident Response Runbooks](pages/incident-response.md)
+  - [Pricing Model](pages/pricing-model.md)
+  - [GA Launch Checklist](pages/ga-launch-checklist.md)
   - [Machine Learning](pages/ml.md)
     - [Abuse Scenario Catalogue](pages/abuse-scenario-catalogue.md)
   - [Governance & Process](pages/governance.md)
