@@ -98,6 +98,18 @@ genuinely tested (a real, running instance of the API, not just stubbed HTTP) an
 explicitly deferred (not OpenAPI-generated, not published to a registry, only two
 languages, no retry/batching).
 
+## Phase 8 addition: scale — real load testing, no new containers deployed
+
+No new container was added or deployed this phase — see ADR-0010. What changed: the
+Postgres connection pool (`PG_POOL` in the Level 2 diagram above) is now sized via
+`DB_POOL_MAX` rather than `pg`'s undocumented default; the ingestion rate limit is tunable
+via `RISK_INGESTION_RATE_LIMIT`; a `GET /healthz/ready` endpoint now lets a load balancer
+check real Postgres connectivity, not just process liveness. A real load test
+(`docs/performance/PHASE_8_LOAD_TEST.md`) against this exact single-API/single-Postgres
+topology found and fixed a genuine concurrency bug (a check-then-act race in account/device
+upsert logic). Multi-region deployment and a dedicated scoring service (which would add new
+containers to this diagram) were evaluated and explicitly NOT built — see ADR-0010 for why.
+
 ## Not yet in scope (roadmap context only)
 
 Event Stream (Kafka-compatible, still deferred per ADR-0002) is still deliberately

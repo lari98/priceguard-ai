@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, desc, eq, gte } from 'drizzle-orm';
+import { and, desc, eq, gte, sql } from 'drizzle-orm';
 import { DRIZZLE, DrizzleDb } from '../db/db.provider';
 import * as schema from '../db/schema';
 
@@ -20,29 +20,24 @@ export class AccountsService {
    * exactly the kind of SUBSCRIPTION_REGION_CHANGE event this API models), and the risk
    * engine must score against the account's *current* declared pricing country, not
    * whatever it happened to be the first time this account was ever seen.
+   *
+   * Phase 8 (Scale) fix: this used to be a select-then-insert-or-update — a real
+   * check-then-act race under concurrent requests for the same (tenantId, externalId),
+   * which a real load test (docs/performance/PHASE_8_LOAD_TEST.md) surfaced as unhandled
+   * 500s from `end_accounts_tenant_external_unique` violations. Replaced with a single
+   * atomic `INSERT ... ON CONFLICT DO UPDATE`, which Postgres guarantees is race-free
+   * regardless of concurrency.
    */
   async findOrCreateEndAccount(tenantId: string, externalId: string, pricingCountry: string) {
-    const [existing] = await this.db
-      .select()
-      .from(schema.endAccounts)
-      .where(and(eq(schema.endAccounts.tenantId, tenantId), eq(schema.endAccounts.externalId, externalId)))
-      .limit(1);
-
-    if (existing) {
-      if (existing.pricingCountry === pricingCountry) return existing;
-      const [updated] = await this.db
-        .update(schema.endAccounts)
-        .set({ pricingCountry })
-        .where(eq(schema.endAccounts.id, existing.id))
-        .returning();
-      return updated;
-    }
-
-    const [created] = await this.db
+    const [account] = await this.db
       .insert(schema.endAccounts)
       .values({ tenantId, externalId, pricingCountry })
+      .onConflictDoUpdate({
+        target: [schema.endAccounts.tenantId, schema.endAccounts.externalId],
+        set: { pricingCountry },
+      })
       .returning();
-    return created;
+    return account;
   }
 
   async findOrCreateDevice(
@@ -51,20 +46,24 @@ export class AccountsService {
     deviceHash: string,
     attrs: { osName?: string; timezone?: string; locale?: string },
   ) {
-    const [existing] = await this.db
-      .select()
-      .from(schema.devices)
-      .where(and(eq(schema.devices.tenantId, tenantId), eq(schema.devices.deviceHash, deviceHash)))
-      .limit(1);
-
-    const device =
-      existing ??
-      (
-        await this.db
-          .insert(schema.devices)
-          .values({ tenantId, endAccountId, deviceHash, ...attrs })
-          .returning()
-      )[0];
+    // Phase 8 (Scale) fix: as with findOrCreateEndAccount above, the previous
+    // select-then-insert-if-missing here was a real check-then-act race under concurrent
+    // requests for the same (tenantId, deviceHash) — a real load test surfaced it as
+    // unhandled 500s from `devices_tenant_hash_unique` violations (see
+    // docs/performance/PHASE_8_LOAD_TEST.md). Replaced with an atomic
+    // `INSERT ... ON CONFLICT DO UPDATE`; the `set` is a harmless self-assignment purely
+    // so Postgres's RETURNING clause gives back the existing row on conflict too (an
+    // `ON CONFLICT DO NOTHING` would return nothing for that case) — this intentionally
+    // preserves the original behaviour of never overwriting an existing device's
+    // osName/timezone/locale from a later event.
+    const [device] = await this.db
+      .insert(schema.devices)
+      .values({ tenantId, endAccountId, deviceHash, ...attrs })
+      .onConflictDoUpdate({
+        target: [schema.devices.tenantId, schema.devices.deviceHash],
+        set: { deviceHash: sql`${schema.devices.deviceHash}` },
+      })
+      .returning();
 
     // Record this (device, account) pairing even when the device row already existed for
     // a *different* account — see deviceAccountLinks's schema comment. onConflictDoNothing

@@ -15,10 +15,39 @@ v1.3.0  Additional SDK/integrations
 v2.0.0  Major architecture/API/model-generation change
 ```
 
-No version has shipped yet. This repository is pre-1.0.0, in active Phase 7 (SDK Ecosystem)
-development, on top of the completed Phase 0–6 foundation below.
+No version has shipped yet. This repository is pre-1.0.0, in active Phase 8 (Scale)
+development, on top of the completed Phase 0–7 foundation below.
 
 ## [Unreleased]
+
+### Added (Phase 8 — Scale: real load testing, a real concurrency-bug fix, capacity tuning)
+- `apps/api/scripts/load-test-ingestion.ts` (`npm run load-test`): real load test of
+  `POST /v1/risk/events` against a real, running instance of the API (real Postgres, real
+  HTTP, real auth) using autocannon — not a synthetic/mocked benchmark.
+- **Real concurrency bug found and fixed**: `AccountsService.findOrCreateEndAccount` and
+  `findOrCreateDevice` did a check-then-act select-then-insert that raced under concurrent
+  requests for the same account/device, producing real unhandled 500s under load (22,445
+  failures in the first load-test run). Fixed with atomic
+  `INSERT ... ON CONFLICT DO UPDATE` statements — race-free regardless of concurrency,
+  confirmed by re-running the load test (0 errors) and the full existing e2e suite (36
+  tests, unchanged pass).
+- Postgres connection pool size is now configurable (`DB_POOL_MAX`,
+  `DB_POOL_IDLE_TIMEOUT_MS`; was `pg`'s undocumented default of 10).
+- The ingestion endpoint's rate limit is now configurable (`RISK_INGESTION_RATE_LIMIT`; was
+  hardcoded to 100/60s).
+- `GET /healthz/ready` (new, alongside the existing `GET /healthz` liveness check since
+  Phase 2): a real Postgres connectivity check for a load balancer/orchestrator.
+- `docs/performance/PHASE_8_LOAD_TEST.md`: full run-by-run real numbers and this sandbox's
+  real hardware caveats (2 vCPU, single Postgres instance, no pooler/replica).
+- `docs/adr/0010-scale-phase8-scope.md`: honest scope statement — what's tested (the
+  concurrency fix, the rate limiter, the readiness check) vs. explicitly NOT done
+  (multi-region/HA deployment evaluated at a design level only — this project has never run
+  as more than one process; no graceful-shutdown drain, found as a side-effect of the
+  load-test harness itself; rate limiting is per-replica and per-IP, not cluster-wide or
+  per-tenant; no dedicated scoring service extraction, since the load test showed the DB
+  round-trip count, not in-process scoring, is the actual bottleneck).
+- Full suite after this phase: API lint/typecheck/28 unit/36 e2e all green (3 new health
+  e2e tests); web unchanged (lint/typecheck/build all green).
 
 ### Added (Phase 7 — SDK Ecosystem: Node and Python client SDKs)
 - `sdk/node/` (`@priceguard/sdk-node`): TypeScript client wrapping

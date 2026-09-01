@@ -83,9 +83,11 @@ cd apps/api && npm run test:e2e   # integration/API tests, incl. multi-tenant is
 
 This is an active, in-progress build. It is **not** production-hardened and has **not**
 undergone third-party security/privacy review (Phase 9). ML pipeline (Phase 4), fraud graph
-(Phase 5), enterprise SSO/RBAC/DSAR (Phase 6), and two client SDKs — Node and Python
-(Phase 7, `sdk/`, see `docs/adr/0009-sdk-ecosystem-scope.md`) — are implemented with
-documented scope limits; see `docs/PHASE_0_DISCOVERY.md` §O and each phase's ADR for what's
-real vs. explicitly deferred. Multi-region/HA scale testing (Phase 8) and production
-hardening (Phase 9) are not yet done.
-Do not deploy this to handle real customer data without completing Phases 8–9.
+(Phase 5), enterprise SSO/RBAC/DSAR (Phase 6), two client SDKs — Node and Python
+(Phase 7, `sdk/`, see `docs/adr/0009-sdk-ecosystem-scope.md`) — and a real load test with a
+genuine concurrency-bug fix (Phase 8, see `docs/performance/PHASE_8_LOAD_TEST.md` and
+`docs/adr/0010-scale-phase8-scope.md`) are implemented with documented scope limits; see
+`docs/PHASE_0_DISCOVERY.md` §O and each phase's ADR for what's real vs. explicitly deferred.
+Multi-region/HA deployment (evaluated at a design level only, not built — ADR-0010) and
+production hardening (Phase 9) are not yet done.
+Do not deploy this to handle real customer data without completing Phase 9.

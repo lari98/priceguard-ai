@@ -22,7 +22,16 @@ import * as schema from './schema';
     {
       provide: PG_POOL,
       inject: [ConfigService],
-      useFactory: (config: ConfigService): Pool => new Pool({ connectionString: config.get<string>('DATABASE_URL') }),
+      useFactory: (config: ConfigService): Pool =>
+        new Pool({
+          connectionString: config.get<string>('DATABASE_URL'),
+          // Phase 8 (Scale): tunable per replica so horizontally-scaled API instances can
+          // be sized against Postgres's real max_connections rather than everyone sharing
+          // node-postgres's undocumented default of 10 — see docs/adr/0010-scale-phase8-scope.md
+          // and docs/performance/PHASE_8_LOAD_TEST.md for the load-test numbers behind this.
+          max: Number(config.get<string>('DB_POOL_MAX') ?? 20),
+          idleTimeoutMillis: Number(config.get<string>('DB_POOL_IDLE_TIMEOUT_MS') ?? 30_000),
+        }),
     },
     {
       provide: DRIZZLE,

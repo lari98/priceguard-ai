@@ -27,7 +27,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       return;
     }
 
-    this.logger.error('Unhandled exception', exception instanceof Error ? exception.stack : String(exception));
+    this.logger.error(
+      'Unhandled exception',
+      exception instanceof Error ? exception.stack : String(exception),
+      exception instanceof Error && exception.cause ? `cause: ${String((exception.cause as Error).message ?? exception.cause)}` : undefined,
+    );
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       path: request.url,

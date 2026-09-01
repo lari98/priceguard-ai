@@ -53,6 +53,8 @@ const PAGE_TREE = [
   { slug: 'adr-0007', title: 'ADR-0007: Fraud Graph on Postgres', parent: 'adrs', source: 'docs/adr/0007-fraud-graph-on-postgres.md', labels: ['adr', 'fraud-graph'] },
   { slug: 'adr-0008', title: 'ADR-0008: Phase 6 Enterprise Compliance Scope', parent: 'adrs', source: 'docs/adr/0008-enterprise-compliance-scope.md', labels: ['adr', 'enterprise', 'compliance'] },
   { slug: 'adr-0009', title: 'ADR-0009: Phase 7 SDK Ecosystem Scope', parent: 'adrs', source: 'docs/adr/0009-sdk-ecosystem-scope.md', labels: ['adr', 'sdk'] },
+  { slug: 'adr-0010', title: 'ADR-0010: Phase 8 Scale Scope', parent: 'adrs', source: 'docs/adr/0010-scale-phase8-scope.md', labels: ['adr', 'scale', 'performance'] },
+  { slug: 'phase-8-load-test', title: 'Phase 8 Load Test Results', parent: 'space-home', source: 'docs/performance/PHASE_8_LOAD_TEST.md', labels: ['performance'] },
 
   { slug: 'ml', title: 'Machine Learning', parent: 'space-home', labels: ['ml'], section: true },
   { slug: 'abuse-scenario-catalogue', title: 'Abuse Scenario Catalogue', parent: 'ml', source: 'docs/ml/ABUSE_SCENARIO_CATALOGUE.md', labels: ['ml', 'phase-3', 'phase-4'] },
