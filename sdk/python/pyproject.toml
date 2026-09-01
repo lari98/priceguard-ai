@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "priceguard-sdk"
+version = "0.1.0"
+description = "Official Python client SDK for the PriceGuard AI risk-scoring API (Phase 7)."
+requires-python = ">=3.9"
+dependencies = [
+  "requests>=2.31,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.4,<9",
+  "responses>=0.25,<1",
+  "mypy>=1.8,<2",
+  "types-requests>=2.31",
+]
+
+[tool.setuptools.packages.find]
+include = ["priceguard_sdk*"]
+
+[tool.mypy]
+strict = true

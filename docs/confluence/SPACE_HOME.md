@@ -22,6 +22,7 @@ Self-generated Confluence-space export — see `docs/confluence/README.md` for w
     - [ADR-0006: ML Shadow Rollout Scope](pages/adr-0006.md)
     - [ADR-0007: Fraud Graph on Postgres](pages/adr-0007.md)
     - [ADR-0008: Phase 6 Enterprise Compliance Scope](pages/adr-0008.md)
+    - [ADR-0009: Phase 7 SDK Ecosystem Scope](pages/adr-0009.md)
   - [Machine Learning](pages/ml.md)
     - [Abuse Scenario Catalogue](pages/abuse-scenario-catalogue.md)
   - [Governance & Process](pages/governance.md)

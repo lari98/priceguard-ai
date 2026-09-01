@@ -36,7 +36,7 @@ apps/
   web/            Next.js admin dashboard
 packages/
   shared-types/   TypeScript types/DTOs shared between api and web (and future SDKs)
-sdk/              Client SDKs (placeholder — Phase 7)
+sdk/              Client SDKs: sdk/node/ (@priceguard/sdk-node), sdk/python/ (priceguard-sdk) — Phase 7, see docs/adr/0009-sdk-ecosystem-scope.md
 infra/            Docker Compose / IaC for local & deployed environments
 docs/
   PHASE_0_DISCOVERY.md
@@ -81,7 +81,11 @@ cd apps/api && npm run test:e2e   # integration/API tests, incl. multi-tenant is
 
 ## Status and known limitations
 
-This is an active, in-progress build. It is **not** production-hardened, has **not**
-undergone third-party security/privacy review, and does not yet implement the ML pipeline,
-fraud graph, or full SDK ecosystem (all explicitly later phases — see `docs/PHASE_0_DISCOVERY.md` §O).
-Do not deploy this to handle real customer data without completing Phases 4–9.
+This is an active, in-progress build. It is **not** production-hardened and has **not**
+undergone third-party security/privacy review (Phase 9). ML pipeline (Phase 4), fraud graph
+(Phase 5), enterprise SSO/RBAC/DSAR (Phase 6), and two client SDKs — Node and Python
+(Phase 7, `sdk/`, see `docs/adr/0009-sdk-ecosystem-scope.md`) — are implemented with
+documented scope limits; see `docs/PHASE_0_DISCOVERY.md` §O and each phase's ADR for what's
+real vs. explicitly deferred. Multi-region/HA scale testing (Phase 8) and production
+hardening (Phase 9) are not yet done.
+Do not deploy this to handle real customer data without completing Phases 8–9.

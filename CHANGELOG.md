@@ -15,10 +15,31 @@ v1.3.0  Additional SDK/integrations
 v2.0.0  Major architecture/API/model-generation change
 ```
 
-No version has shipped yet. This repository is pre-1.0.0, in active Phase 6 (Enterprise
-Compliance) development, on top of the completed Phase 0–5 foundation below.
+No version has shipped yet. This repository is pre-1.0.0, in active Phase 7 (SDK Ecosystem)
+development, on top of the completed Phase 0–6 foundation below.
 
 ## [Unreleased]
+
+### Added (Phase 7 — SDK Ecosystem: Node and Python client SDKs)
+- `sdk/node/` (`@priceguard/sdk-node`): TypeScript client wrapping
+  `POST /v1/risk/events`, built on the platform `fetch` (zero runtime dependencies), typed
+  request/response shapes mirroring the API's DTOs, `PriceGuardApiError` /
+  `PriceGuardTimeoutError` typed errors, configurable timeout.
+- `sdk/python/` (`priceguard-sdk`): Python 3.9+ equivalent built on `requests`, same
+  typed-error/timeout behaviour, `mypy --strict` clean.
+- Both SDKs are proven against a **real, running instance of the API** (real Postgres,
+  real HTTP, real bcrypt-backed API-key auth), not just stubbed HTTP:
+  `apps/api/test/sdk-node-client.e2e-spec.ts` (part of the API's own e2e suite) and
+  `sdk/python/tests/test_client_e2e.py` (spawns `apps/api/scripts/boot-for-sdk-e2e.ts` as a
+  subprocess). Each also has fast unit tests against stubbed HTTP for the client's own
+  request-building/error-mapping logic.
+- `docs/adr/0009-sdk-ecosystem-scope.md`: honest scope statement — what's tested vs.
+  explicitly NOT done (only the ingestion endpoint wrapped; not OpenAPI-generated; not
+  published to npm/PyPI; no retry/batching; only two languages, not the brief's implied
+  "full" ecosystem).
+- Full suite after this phase: API lint/typecheck/28 unit/33 e2e all green (2 new SDK e2e
+  tests); Node SDK build/lint/5 unit tests all green; Python SDK 4 unit + 2 real e2e tests
+  all green, `mypy --strict` clean; web unchanged (lint/typecheck/build all green).
 
 ### Added (Phase 6 — Enterprise Compliance: SSO, fine-grained RBAC, DSAR export, session revocation)
 - `apps/api/src/sso/`: real OIDC authorization-code + PKCE (S256) relying-party using

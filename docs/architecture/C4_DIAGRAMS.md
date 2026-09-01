@@ -88,6 +88,16 @@ genuinely tested (a real fake-but-spec-compliant OIDC provider, not a live vendo
 what's explicitly deferred (SAML, MFA; the SSO callback returns JSON, not yet a browser
 redirect into the dashboard SPA).
 
+## Phase 7 addition: client SDKs (Node, Python) wrapping the ingestion endpoint
+
+`sdk/node/` (`@priceguard/sdk-node`) and `sdk/python/` (`priceguard-sdk`) are thin typed
+clients for `POST /v1/risk/events` — no new container, no new API surface, just first-party
+client libraries a tenant's own application process calls into (replacing the `tenantApp`
+box's own hand-rolled HTTP calls in the Level 1 diagram above). See ADR-0009 for what's
+genuinely tested (a real, running instance of the API, not just stubbed HTTP) and what's
+explicitly deferred (not OpenAPI-generated, not published to a registry, only two
+languages, no retry/batching).
+
 ## Not yet in scope (roadmap context only)
 
 Event Stream (Kafka-compatible, still deferred per ADR-0002) is still deliberately
